@@ -1,0 +1,127 @@
+♡, [3/1/2025 6:51 PM]
+### 1. إعداد المشروع والتطبيق
+أولاً، قم بإنشاء مشروع Django جديد وتطبيق داخله:
+
+django-admin startproject myproject
+cd myproject
+python manage.py startapp reviews
+### 2. تعريف النماذج (Models)
+في ملف models.py داخل تطبيق reviews، قم بتعريف النماذج اللازمة لتخزين المنتجات والتقييمات.
+
+from django.db import models
+from django.contrib.auth.models import User
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review by {self.user.username} for {self.product.name}"
+### 3. إنشاء وتطبيق الهجرات (Migrations)
+بعد تعريف النماذج، قم بإنشاء وتطبيق الهجرات لتحديث قاعدة البيانات:
+
+python manage.py makemigrations
+python manage.py migrate
+### 4. إنشاء النماذج في لوحة الإدارة (Admin)
+لتسهيل إدارة المنتجات والتقييمات من خلال لوحة إدارة Django، قم بتسجيل النماذج في ملف admin.py:
+
+from django.contrib import admin
+from .models import Product, Review
+
+admin.site.register(Product)
+admin.site.register(Review)
+### 5. إنشاء النماذج (Forms)
+لإنشاء نماذج لإضافة التقييمات، قم بتعريف نموذج في ملف forms.py:
+
+from django import forms
+from .models import Review
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+### 6. إنشاء العروض (Views)
+في ملف views.py، قم بإنشاء العروض اللازمة لعرض المنتجات وإضافة التقييمات:
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Product, Review
+from .forms import ReviewForm
+from django.contrib.auth.decorators import login_required
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    reviews = product.reviews.all()
+    return render(request, 'reviews/product_detail.html', {'product': product, 'reviews': reviews})
+
+@login_required
+def add_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+            return redirect('product_detail', product_id=product.id)
+    else:
+        form = ReviewForm()
+    return render(request, 'reviews/add_review.html', {'form': form, 'product': product})
+### 7. إنشاء القوالب (Templates)
+قم بإنشاء القوالب اللازمة لعرض تفاصيل المنتج وإضافة التقييمات.
+
+#### product_detail.html
+<h1>{{ product.name }}</h1>
+<p>{{ product.description }}</p>
+<p>Price: ${{ product.price }}</p>
+
+<h2>Reviews</h2>
+<ul>
+    {% for review in reviews %}
+        <li>
+            <strong>{{ review.user.username }}</strong> - {{ review.rating }}/5
+            <p>{{ review.comment }}</p>
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'add_review' product.id %}">Add Review</a>
+#### add_review.html
+<h1>Add Review for {{ product.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+</form>
+### 8. إعداد الروابط (URLs)
+قم بتعريف الروابط في ملف urls.py داخل تطبيق reviews:
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('product/<int:product_id>/', views.product_detail, name='product_detail'),
+    path('product/<int:product_id>/add_review/', views.add_review, name='add_review'),
+]
+ثم قم بتضمين روابط التطبيق في ملف urls.py الرئيسي للمشروع:
+
+♡, [3/1/2025 6:51 PM]
+`python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('reviews/', include('reviews.urls')),

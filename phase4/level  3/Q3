@@ -1,0 +1,61 @@
+بناء API باستخدام Django REST Framework
+
+يمكن استخدام Django مع RESTful APIs باستخدام Django REST Framework (DRF). DRF هو واجهة برمجة تطبيقات (API) متكاملة مع Django، مما يسهل بناء وتنفيذ APIs RESTful.
+
+خطوات بناء API باستخدام DRF:
+
+1. تثبيت Django REST Framework:
+  
+pip install django-rest-framework
+2. إضافة DRF إلى مشروع Django:
+  
+python manage.py startapp rest_framework
+3. إضافة DRF إلى مشروع Django في ملف settings.py:
+  
+INSTALLED_APPS = [
+    ...
+    'rest_framework',
+    'rest_framework.authtoken',
+    ...
+]
+4. إنشاء نموذج API:
+   * إنشاء نموذج Django: python manage.py makemigrations && python manage.py migrate
+   * إنشاء نموذج API باستخدام serializers:
+    
+from rest_framework import serializers
+from .models import MyModel
+
+class MyModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MyModel
+        fields = ['id', 'name', 'email']
+5. إنشاء视图 API:
+   * إنشاء واجهة برمجة تطبيقات (API) باستخدام views:
+    
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .serializers import MyModelSerializer
+
+class MyModelView(APIView):
+    def get(self, request):
+        my_model = MyModel.objects.all()
+        serializer = MyModelSerializer(my_model, many=True)
+        return Response(serializer.data)
+6. إنشاء URL للموارد API:
+   * إنشاء URL للموارد API باستخدام urls.py:
+    
+from django.urls import path
+from rest_framework import routers
+from .views import MyModelView
+
+router = routers.DefaultRouter()
+router.register(r'mymodel', MyModelView)
+
+urlpatterns = [
+    path('', include(router.urls)),
+]
+7. تشغيل التطبيق:
+  
+python manage.py runserver
+بناءً على هذه الخطوات، يمكنك بناء API باستخدام Django REST Framework.

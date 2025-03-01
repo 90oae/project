@@ -1,0 +1,68 @@
+View في Django
+
+في Django، يُستخدم مصطلح "View" للإشارة إلى الكائن الذي يتحكم في كيفية معالجة الطلبات HTTP. View هو جزء أساسي من Django، ويتم استخدامها لإنشاء تطبيقات الويب.
+
+وظيفة View في Django
+
+View في Django هو الكائن الذي يتحكم في كيفية معالجة الطلبات HTTP. يتم استخدام View لإنشاء تطبيقات الويب، وتتمثل وظيفتها في معالجة الطلبات HTTP وتحويلها إلى استجابة HTTP. يمكن أن تكون View بسيطة، مثل عرض HTML، أو يمكن أن تكون معقدة، مثل إنشاء استجابة HTTP بناءً على البيانات من قاعدة البيانات.
+
+ربط View مع URLs
+
+يتم ربط View مع URLs باستخدام نظام URL routing في Django. يتم تعريف نظام URL routing في ملف urls.py، والذي يحتوي على تعريفات للURLs و View التي يتم استدعاؤها عندما يتم طلب URL معينة.
+
+مثال على View في Django
+
+يمكن أن يكون View بسيطًا، مثل عرض HTML، أو يمكن أن يكون معقدًا، مثل إنشاء استجابة HTTP بناءً على البيانات من قاعدة البيانات. يمكن أن يكون View يقوم بإنشاء استجابة HTTP بناءً على البيانات من قاعدة البيانات، مثل:
+
+from django.http import HttpResponse
+from .models import Book
+
+def book_list(request):
+    books = Book.objects.all()
+    output = ', '.join([book.title for book in books])
+    return HttpResponse(output)
+ربط View مع URLs
+
+يتم ربط View مع URLs باستخدام نظام URL routing في Django. يتم تعريف نظام URL routing في ملف urls.py، والذي يحتوي على تعريفات للURLs و View التي يتم استدعاؤها عندما يتم طلب URL معينة.
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('books/', views.book_list, name='book_list'),
+]
+استخدام View في Django
+
+يمكن استخدام View في Django لإنشاء تطبيقات الويب. يتم استخدام View لإنشاء تطبيقات الويب، وتتمثل وظيفتها في معالجة الطلبات HTTP وتحويلها إلى استجابة HTTP.
+
+مثال على استخدام View في Django
+
+يمكن أن يكون View يقوم بإنشاء استجابة HTTP بناءً على البيانات من قاعدة البيانات، مثل:
+
+from django.http import HttpResponse
+from .models import Book
+
+def book_list(request):
+    books = Book.objects.all()
+    output = ', '.join([book.title for book in books])
+    return HttpResponse(output)
+استخدام View لإنشاء تطبيق الويب
+
+يمكن استخدام View لإنشاء تطبيق الويب. يتم استخدام View لإنشاء تطبيق الويب، وتتمثل وظيفتها في معالجة الطلبات HTTP وتحويلها إلى استجابة HTTP.
+
+from django.http import HttpResponse
+from .models import Book
+
+def book_list(request):
+    books = Book.objects.all()
+    output = ', '.join([book.title for book in books])
+    return HttpResponse(output)
+استخدام View لإنشاء تطبيق الويب مع قاعدة بيانات
+
+يمكن استخدام View لإنشاء تطبيق الويب مع قاعدة بيانات. يتم استخدام View لإنشاء تطبيق الويب مع قاعدة بيانات، وتتمثل وظيفتها في معالجة الطلبات HTTP وتحويلها إلى استجابة HTTP.
+
+`python
+from django.http import HttpResponse
+from .models import Book
+
+def book_list(request):

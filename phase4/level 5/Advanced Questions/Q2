@@ -1,0 +1,64 @@
+نعم، يمكن استخدام Django مع React أو Vue.js لواجهة المستخدم عبر Django Rest Framework (DRF) لإنشاء API.
+
+كيفية الدمج:
+
+1. إنشاء API باستخدام Django Rest Framework (DRF)
+
+تثبيت DRF:
+
+pip install djangorestframework
+
+إضافة rest_framework إلى INSTALLED_APPS في settings.py.
+
+إنشاء View لعرض البيانات بصيغة JSON:
+
+from rest_framework.viewsets import ModelViewSet
+from .models import Product
+from .serializers import ProductSerializer
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+
+2. إعداد React أو Vue.js كواجهة أمامية:
+
+إنشاء مشروع React أو Vue.js باستخدام create-react-app أو Vue CLI.
+
+استهلاك API باستخدام Axios:
+
+import axios from "axios";
+useEffect(() => {
+    axios.get("http://localhost:8000/api/products/")
+         .then(response => setProducts(response.data));
+}, []);
+
+تشغيل React/Vue على localhost:3000 أو localhost:8080.
+
+
+
+3. تمكين CORS (إذا لزم الأمر)
+
+تثبيت django-cors-headers:
+
+pip install django-cors-headers
+
+إضافته إلى INSTALLED_APPS وتمكينه في settings.py:
+
+INSTALLED_APPS = [
+    ...
+    'corsheaders',
+]
+MIDDLEWARE = [
+    ...
+    'corsheaders.middleware.CorsMiddleware',
+]
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
+
+
+
+
+النتيجة:
+
+سيتم استخدام Django كـ Back-end API بينما يتم عرض البيانات والتفاعل معها عبر React أو Vue.js كواجهة أمامية ديناميكية.

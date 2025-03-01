@@ -1,0 +1,48 @@
+يمكن تكامل Django مع قاعدة بيانات أخرى مثل PostgreSQL عن طريق تطبيق الخطوات التالية:
+
+1. تثبيت PostgreSQL
+
+إذا كنت تستخدم نظام تشغيل Linux أو macOS، فيمكنك تثبيت PostgreSQL من خلال مدير الحزم الخاص بระบบ التشغيل. على سبيل المثال، يمكنك تثبيت PostgreSQL على Linux باستخدام الأمر التالي:
+sudo apt-get install postgresql
+2. إنشاء قاعدة بيانات
+
+بعد تثبيت PostgreSQL، يمكنك إنشاء قاعدة بيانات جديدة باستخدام الأمر التالي:
+sudo -u postgres psql -c "CREATE DATABASE mydatabase"
+3. تثبيت الاداة PostgreSQL
+
+للتكامل مع PostgreSQL، يجب تثبيت الاداة psycopg2 باستخدام الأمر التالي:
+pip install psycopg2
+4. إعداد الاتصال
+
+بعد تثبيت الاداة psycopg2، يمكنك إعداد الاتصال مع PostgreSQL عن طريق تعريف أسماء المستخدم والمرور في ملف settings.py:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mydatabase',
+        'USER': 'myuser',
+        'PASSWORD': 'mypassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+5. تعريف نموذج
+
+بعد إعداد الاتصال، يمكنك تعريف نموذج جديد في ملف models.py:
+from django.db import models
+
+class نموذج_الاستقبال(models.Model):
+    الاسم = models.CharField(max_length=255)
+    البريد_الإلكتروني = models.EmailField()
+    الرقم_الخليوي = models.IntegerField()
+6. إجراء الترحيل
+
+بعد تعريف النموذج، يمكنك إجراء الترحيل باستخدام الأمر التالي:
+python manage.py makemigrations
+python manage.py migrate
+7. إضافة عنصر جديد
+
+بعد إجراء الترحيل، يمكنك إضافة عنصر جديد إلى قاعدة البيانات باستخدام الأمر التالي:
+python manage.py shell
+في shell Django، يمكنك إضافة عنصر جديد إلى قاعدة البيانات باستخدام الأمر التالي:
+from myapp.models import نموذج_الاستقبال
+نموذج_الاستقبال.objects.create(الاسم='John Doe', البريد_الإلكتروني='john@example.com', الرقم_الخليوي=1234567890)

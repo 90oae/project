@@ -1,0 +1,113 @@
+### 1. إنشاء مشروع Django
+إذا لم يكن لديك مشروع Django بعد، يمكنك إنشاؤه باستخدام الأوامر التالية:
+
+django-admin startproject myproject
+cd myproject
+python manage.py startapp myapp
+### 2. تثبيت الحزم المطلوبة
+ستحتاج إلى تثبيت بعض الحزم الإضافية لتسهيل عملية الدمج:
+
+pip install django-paypal
+pip install stripe
+### 3. إعداد PayPal
+لدمج PayPal، يمكنك استخدام حزمة django-paypal:
+
+- إضافة paypal.standard.ipn إلى INSTALLED_APPS في settings.py:
+
+INSTALLED_APPS = [
+    ...
+    'paypal.standard.ipn',
+]
+- إضافة PayPal إلى urls.py:
+
+from django.urls import path, include
+
+urlpatterns = [
+    ...
+    path('paypal/', include('paypal.standard.ipn.urls')),
+]
+- إنشاء نموذج للدفع في views.py:
+
+from paypal.standard.forms import PayPalPaymentsForm
+from django.urls import reverse
+from django.shortcuts import render
+
+def payment_process(request):
+    paypal_dict = {
+        "business": "your-paypal-email@example.com",
+        "amount": "100.00",
+        "item_name": "Product Name",
+        "invoice": "unique-invoice-id",
+        "currency_code": "USD",
+        "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
+        "return_url": request.build_absolute_uri(reverse('payment_done')),
+        "cancel_return": request.build_absolute_uri(reverse('payment_cancelled')),
+    }
+
+    form = PayPalPaymentsForm(initial=paypal_dict)
+    return render(request, "payment/process.html", {"form": form})
+- إنشاء قوالب HTML لعرض نموذج الدفع:
+
+<!-- payment/process.html -->
+<form action="{{ form.target }}" method="post">
+    {{ form.as_p }}
+    <input type="submit" value="Pay Now">
+</form>
+### 4. إعداد Stripe
+لدمج Stripe، يمكنك استخدام مكتبة stripe مباشرة:
+
+- تثبيت مكتبة Stripe:
+
+pip install stripe
+- إضافة مفاتيح API إلى settings.py:
+
+STRIPE_PUBLIC_KEY = 'your-stripe-public-key'
+STRIPE_SECRET_KEY = 'your-stripe-secret-key'
+- إنشاء نموذج للدفع في views.py:
+
+import stripe
+from django.conf import settings
+from django.shortcuts import render, redirect
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def stripe_payment(request):
+    if request.method == 'POST':
+        token = request.POST.get('stripeToken')
+        try:
+            charge = stripe.Charge.create(
+                amount=1000,  # Amount in cents
+                currency="usd",
+                source=token,
+                description="Example charge"
+            )
+            return redirect('payment_success')
+        except stripe.error.CardError as e:
+            return redirect('payment_failed')
+    return render(request, 'payment/stripe_payment.html')
+- إنشاء قالب HTML لعرض نموذج الدفع:
+
+<!-- payment/stripe_payment.html -->
+<form action="{% url 'stripe_payment' %}" method="post">
+    {% csrf_token %}
+    <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+        data-key="{{ STRIPE_PUBLIC_KEY }}"
+        data-amount="1000"
+        data-name="Example"
+        data-description="Example charge"
+        data-locale="auto"
+        data-currency="usd">
+    </script>
+</form>
+### 5. إعداد URLs
+أضف مسارات URLs في urls.py للتعامل مع عمليات الدفع:
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    ...
+    path('paypal/', views.payment_process, name='payment_process'),
+    path('stripe/', views.stripe_payment, name='stripe_payment'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/failed/', views.payment_failed, name='payment_failed'),

@@ -1,0 +1,44 @@
+Class-based Views في Django
+=====================================
+
+Class-based Views هي طريقة أخرى لإنشاء views في Django، حيث يتم إنشاء class يحتوي على methods التي تعمل على handling requests وتقديم responses.
+
+فرق بين Function-based Views و Class-based Views
+-------------------------------------------------
+
+*   Function-based Views: يتم إنشاء function يحتوي على code الذي يعمل على handling requests وتقديم responses.
+*   Class-based Views: يتم إنشاء class يحتوي على methods التي تعمل على handling requests وتقديم responses.
+
+كيفية استخدام Class-based Views
+-----------------------------------
+
+1.  إنشاء class: يتم إنشاء class يحتوي على methods التي تعمل على handling requests وتقديم responses.
+2.  تعريف methods: يتم تعريف methods في class التي تعمل على handling requests وتقديم responses.
+3.  استخدام mixin: يمكن استخدام mixin لإنشاء class-based views بشكل أسرع.
+
+مثال على Class-based View
+---------------------------
+
+from django.http import HttpResponse
+from django.views import View
+
+class HelloWorldView(View):
+    def get(self, request):
+        return HttpResponse("Hello, World!")
+في هذا المثال، نستخدم Class-based View لإنشاء view التي تعرض رسالة "Hello, World!" عندما يتم إرسال request GET.
+
+استخدام mixin
+-----------------
+
+from django.http import HttpResponse
+from django.views import View
+from django.views.generic import TemplateView
+
+class HelloWorldView(TemplateView):
+    template_name = "hello_world.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["message"] = "Hello, World!"
+        return context
+في هذا المثال، نستخدم mixin TemplateView لإنشاء class-based view التي تعرض template HTML مع بيانات.context.

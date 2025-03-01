@@ -1,0 +1,70 @@
+تأمين التطبيقات باستخدام Django
+--------------------------------------
+
+Django يوفر العديد من الأدوات والأدوات لضمان أمن التطبيقات. فيما يلي بعض الطرق لضمان أمن التطبيقات باستخدام Django:
+
+### 1. تأمين CSRF
+
+*   CSRF (Cross-Site Request Forgery): هو نوع من الهجمات التي يتم إرسال request من موقع غير مصادق به إلى موقع مصادق به.
+*   تأمين CSRF باستخدام Django: يتم تأمين CSRF باستخدام cookie secrecy key. يتم إنشاء cookie secrecy key في ملف settings.py وتقديمها للقائمين على التطبيق. عند إرسال request، يتم إرسال cookie secrecy key مع request. يتم استخدام هذا cookie secrecy key للتحقق من صحة request.
+*   مثال على تأمين CSRF باستخدام Django:
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_protect
+
+@csrf_protect
+def my_view(request):
+    # code
+    return HttpResponse("Hello, World!")
+### 2. تأمين XSS
+
+*   XSS (Cross-Site Scripting): هو نوع من الهجمات التي يتم إرسال code JavaScript من موقع غير مصادق به إلى موقع مصادق به.
+*   تأمين XSS باستخدام Django: يتم تأمين XSS عن طريق استخدام template engine الآمنة مثل jinja2 أو mustache. يتم استخدام هذه engine لتحويل template إلى HTML آمنة.
+*   مثال على تأمين XSS باستخدام Django:
+from django.shortcuts import render
+from django.template import RequestContext
+
+def my_view(request):
+    # code
+    return render(request, 'template.html', {'var': 'value'})
+### 3. تأمين التطبيق باستخدام Django
+
+*   تأمين التطبيق باستخدام Django: يتم تأمين التطبيق باستخدام العديد من الطرق، بما في ذلك:
+ + تأمين access control: يتم تأمين access control باستخدام permission system في Django.
+ + تأمين data validation: يتم تأمين data validation باستخدام validation system في Django.
+ + تأمين password hashing: يتم تأمين password hashing باستخدام password hashing system في Django.
+
+مثال على تأمين التطبيق باستخدام Django:
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required
+
+@permission_required('myapp.my_permission')
+@login_required
+def my_view(request):
+    # code
+    return HttpResponse("Hello, World!")
+### 4. استخدام middleware
+
+*   middleware: هي أداة تقوم بتعديل request أو response قبل أن يصل إلى view.
+*   استخدام middleware لضمان أمن التطبيق: يتم استخدام middleware لضمان أمن التطبيق. على سبيل المثال، يمكن استخدام middleware لتحقق من صحة request قبل أن يصل إلى view.
+
+مثال على استخدام middleware لضمان أمن التطبيق:
+from django.http import HttpResponse
+from django.views import View
+
+class MyMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # code
+        response = self.get_response(request)
+        return response
+
+class MyView(View):
+    def get(self, request):
+        # code
+        return HttpResponse("Hello, World!")
+### 5. استخدام tools الأمنية
+
+*   tools الأمنية: هي أدوات تقوم بتحديد الأخطاء الأمنية في التطبيق.
+*   استخدام tools الأمنية لضمان أمن التطبيق:

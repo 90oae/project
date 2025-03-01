@@ -1,0 +1,35 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.product_list, name='product_list'),
+    path('product/<int:pk>/', views.product_detail, name='product_detail'),
+    path('product/add/', views.add_product, name='add_product'),
+]
+ثم قم بتضمين روابط التطبيق في ملف urls.py الرئيسي للمشروع:
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('inventory/', include('inventory.urls')),
+]
+---
+
+### 8. تشغيل الخادم
+- قم بتشغيل الخادم للتأكد من أن النظام يعمل:
+ 
+  python manage.py runserver
+  
+- افتح المتصفح وانتقل إلى http://127.0.0.1:8000/inventory/ لرؤية النظام في العمل.
+
+---
+
+### 9. إضافة ميزات إضافية
+- إدارة العمليات: أضف واجهات لإدارة عمليات الإدخال والإخراج (وارد/صادر).
+- تقارير المخزون: أنشئ تقارير تظهر حركة المخزون والكميات المتاحة.
+- مستخدمين متعددين: أضف نظام مستخدمين مع صلاحيات مختلفة.
+- واجهة API: استخدم Django REST Framework لإنشاء واجهة برمجية (API) للنظام.
+
+---

@@ -1,0 +1,28 @@
+الTEMPLATE في Django
+
+الTEMPLATE هو تقنية في Django لإنشاء واجهات المستخدم (User Interface) باستخدام لغة HTML ومتغيرات البيانات (Variables) من Django. يسمح Template بإنشاء واجهات المستخدم المتقدمة بسهولة، دون الحاجة إلى الكتابة المرهقة في HTML.
+
+دور الTEMPLATE في بناء واجهات المستخدم
+
+* يسمح Template بتضمين المتغيرات من Django في HTML، مما يسهل إنشاء واجهات المستخدم المتقدمة.
+* يسمح Template بتكوين واجهات المستخدم باستخدام لغة HTML، مما يسهل إنشاء واجهات المستخدم المتناسقة.
+* يمكن تخصيص Template لإنشاء واجهات المستخدم المختلفة، مثل صفحات قائمة، صفحات تفاصيل، إلخ.
+
+مثال على Template في Django
+
+<!-- template.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>صفحة قائمة</title>
+</head>
+<body>
+    <h1>قائمة المنتجات</h1>
+    <ul>
+        {% for product in products %}
+            <li>{{ product.name }} - {{ product.price }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+في هذا المثال، Template يضمين المتغيرات products من Django في HTML، مما يسمح بإنشاء قائمة المنتجات المتقدمة.

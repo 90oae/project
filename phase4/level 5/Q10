@@ -1,0 +1,72 @@
+### 1. تهيئة النماذج (Models)
+
+أولاً، تحتاج إلى تعريف النماذج الخاصة بالمنتجات والفئات والتقييمات. لنفترض أن لديك النماذج التالية:
+
+from django.db import models
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    rating = models.FloatField(default=0.0)
+
+    def __str__(self):
+        return self.name
+### 2. إنشاء الفلاتر (Filters)
+
+يمكنك استخدام django-filter لإنشاء الفلاتر بسهولة. أولاً، قم بتثبيت الحزمة:
+
+pip install django-filter
+ثم قم بتهيئة django-filter في إعداداتك:
+
+INSTALLED_APPS = [
+    ...
+    'django_filters',
+    ...
+]
+بعد ذلك، قم بإنشاء ملف filters.py داخل تطبيقك:
+
+import django_filters
+from .models import Product
+
+class ProductFilter(django_filters.FilterSet):
+    min_price = django_filters.NumberFilter(field_name="price", lookup_expr='gte')
+    max_price = django_filters.NumberFilter(field_name="price", lookup_expr='lte')
+    category = django_filters.CharFilter(field_name='category__name', lookup_expr='icontains')
+    min_rating = django_filters.NumberFilter(field_name="rating", lookup_expr='gte')
+
+    class Meta:
+        model = Product
+        fields = ['min_price', 'max_price', 'category', 'min_rating']
+### 3. استخدام الفلاتر في الواجهات (Views)
+
+في الواجهة (View)، يمكنك استخدام ProductFilter لتصفية المنتجات:
+
+from django.shortcuts import render
+from .models import Product
+from .filters import ProductFilter
+
+def product_list(request):
+    products = Product.objects.all()
+    product_filter = ProductFilter(request.GET, queryset=products)
+    return render(request, 'product_list.html', {'filter': product_filter})
+### 4. عرض الفلاتر في القالب (Template)
+
+في القالب (Template)، يمكنك عرض الفلاتر والنتائج المصفاة:
+
+`html
+<!-- product_list.html -->
+<form method="get">
+    {{ filter.form.as_p }}
+    <button type="submit">Filter</button>
+</form>
+
+<ul>
+{% for product in filter.qs %}
+    <li>{{

@@ -1,0 +1,58 @@
+في Django، يتم التعامل مع قواعد البيانات باستخدام Object-Relational Mapping (ORM)، وهي طبقة تجريدية تسمح لك بالتعامل مع قاعدة البيانات باستخدام كود Python بدلاً من كتابة استعلامات SQL مباشرة.
+
+### كيفية استخدام ORM في Django:
+
+1. تعريف النماذج (Models):
+   - يتم تعريف النماذج كفئات Python ترث من django.db.models.Model.
+   - كل حقل في النموذج يمثل عموداً في جدول قاعدة البيانات.
+
+  
+   from django.db import models
+
+   class Product(models.Model):
+       name = models.CharField(max_length=100)
+       price = models.DecimalField(max_digits=10, decimal_places=2)
+   
+2. إنشاء الجداول:
+   - بعد تعريف النماذج، يتم إنشاء الجداول في قاعدة البيانات باستخدام الأمرين makemigrations و migrate.
+
+  
+   python manage.py makemigrations
+   python manage.py migrate
+   
+3. إجراء العمليات على البيانات:
+   - إنشاء سجلات جديدة:
+    
+     product = Product(name="Laptop", price=999.99)
+     product.save()
+     
+   - قراءة البيانات:
+    
+     products = Product.objects.all()  # جلب جميع المنتجات
+     cheap_products = Product.objects.filter(price__lt=500)  # جلب المنتجات الأقل من 500
+     
+   - تحديث البيانات:
+    
+     product = Product.objects.get(id=1)
+     product.price = 899.99
+     product.save()
+     
+   - حذف البيانات:
+    
+     product = Product.objects.get(id=1)
+     product.delete()
+     
+4. الاستعلامات المتقدمة:
+   - يدعم ORM استعلامات متقدمة مثل التجميع (Aggregation)، والترتيب (Ordering)، والربط بين الجداول (Joins).
+
+  
+   from django.db.models import Count, Avg
+
+   Product.objects.annotate(num_reviews=Count('reviews')).filter(num_reviews__gt=5)
+   
+### مزايا استخدام ORM:
+- التجريد: لا تحتاج إلى كتابة استعلامات SQL يدوياً.
+- الأمان: يقلل من خطر هجمات SQL Injection.
+- المرونة: يدعم العديد من قواعد البيانات مثل PostgreSQL وMySQL وSQLite.
+
+باختصار، ORM في Django يجعل التعامل مع قواعد البيانات أسهل وأكثر أماناً باستخدام كود Python بدلاً من SQL.

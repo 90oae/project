@@ -1,0 +1,38 @@
+يمكن ربط عنوان URL إلى دالة view في Django عن طريق تطبيق الخطوات التالية:
+
+1. تعريف دالة view: في الملف views.py في التطبيق الذي ترغب في إنشاء دالة view، أضف تعريفًا للدالة view. على سبيل المثال:
+  
+from django.http import HttpResponse
+
+def عرض_صفحة(request):
+    return HttpResponse("هذه صفحة الرئيسية")
+2. تعريف عنوان URL: في الملف urls.py في المشروع، أضف تعريفًا لعنوان URL الذي ترغب في ربطه إلى دالة view. على سبيل المثال:
+  
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.عرض_صفحة, name='الصفحة_الرئيسية'),
+]
+   في هذا المثال، عنوان URL '' يرتبط إلى دالة view عرض_صفحة في الملف views.py.
+3. تطبيق التوجيه: بعد تعريف عنوان URL، يجب تطبيق التوجيه على المشروع. استخدم الأمر التالي:
+  
+python manage.py runserver
+   هذا الأمر سيدفعك إلى تشغيل المشروع وتطبيق التوجيه.
+
+إذا قمت بزيارة عنوان URL http://localhost:8000/ في متصفحك، فستظهر لك صفحة ويب تقول "هذه صفحة الرئيسية".
+
+إليك مثالًا كاملًا لربط عنوان URL إلى دالة view:
+# views.py
+from django.http import HttpResponse
+
+def عرض_صفحة(request):
+    return HttpResponse("هذه صفحة الرئيسية")
+
+# urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.عرض_صفحة, name='الصفحة_الرئيسية'),
+]

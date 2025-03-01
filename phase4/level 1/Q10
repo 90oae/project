@@ -1,0 +1,36 @@
+Middleware في Django
+
+Middleware هو مفهوم في Django الذي يسمح بتعريف وتطبيق وحدات تحكم في الطلبات التي يتلقاها التطبيق. يسمح Middleware بتعريف وتنفيذ وحدات تحكم في الطلبات التي يتلقاها التطبيق، مما يسمح بإنشاء تطبيقات ويب أكثر متقدمة.
+
+دور Middleware في Django
+
+* يسمح Middleware بتعريف وتطبيق وحدات تحكم في الطلبات التي يتلقاها التطبيق.
+* تسمح Middleware بتعريف وتطبيق وحدات تحكم في الطلبات التي يتلقاها التطبيق، مما يسمح بإنشاء تطبيقات ويب أكثر متقدمة.
+* يمكن استخدام Middleware لإنشاء وحدات تحكم في الطلبات التي يتلقاها التطبيق، مما يسمح بإنشاء تطبيقات ويب أكثر متقدمة.
+
+مثال على Middleware في Django
+
+# middleware.py
+from django.http import HttpResponse
+
+class MyMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # تعريف وحدات تحكم في الطلب
+        print(" Middleware Called ")
+
+        response = self.get_response(request)
+
+        # تعريف وحدات تحكم في الإجابة
+        print(" Middleware Finished ")
+
+        return response
+في هذا المثال، Middleware يسمح بتعريف وتطبيق وحدات تحكم في الطلبات التي يتلقاها التطبيق. يمكن استخدام Middleware لإنشاء وحدات تحكم في الطلبات التي يتلقاها التطبيق، مما يسمح بإنشاء تطبيقات ويب أكثر متقدمة.
+
+كيفية استخدام Middleware
+
+1. إنشاء ملف middleware.py في التطبيق.
+2. تعريف Middleware في ملف middleware.py.
+3. إضافة Middleware إلى قائمة الوسطاء في ملف settings.py.

@@ -1,0 +1,70 @@
+Models في Django
+
+في Django، يُستخدم مصطلح "Models" للإشارة إلى الكائنات التي تمثل قواعد البيانات. Models هي جزء أساسي من Django، ويتم استخدامها لإنشاء قواعد البيانات وتحليل البيانات.
+
+مفهوم Models في Django
+
+Models في Django هي كائنات يتم إنشاؤها باستخدام Python، وتتمثل وظيفتها في تمثيل قواعد البيانات. Models يحتوي على ميزات مثل:
+
+*   علاقات بين الكائنات: يمكن إنشاء علاقات بين Models، مما يسمح بإنشاء قواعد بيانات معقدة.
+*   التحقق من صحة البيانات: يمكن استخدام Models لتحقق من صحة البيانات، مما يمنع إدخال بيانات غير صالحة.
+*   الاستعلامات: يمكن استخدام Models لإنشاء استعلامات على البيانات، مما يسمح بتوليد البيانات.
+
+إنشاء Models في Django
+
+يمكن إنشاء Models في Django باستخدام Python. يتم إنشاء Models ككائنات Python، وتتمثل وظيفتها في تمثيل قواعد البيانات. يمكن إنشاء Models باستخدام النموذج التالي:
+
+from django.db import models
+
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+    publication_date = models.DateField()
+استخدام Models في Django
+
+يمكن استخدام Models في Django لإنشاء قواعد البيانات وتحليل البيانات. يتم استخدام Models لإنشاء قواعد البيانات، وتتمثل وظيفتها في تمثيل البيانات في قاعدة البيانات. يمكن استخدام Models لإنشاء قواعد بيانات معقدة، وتتمثل وظيفتها في إنشاء علاقات بين الكائنات.
+
+مثال على استخدام Models في Django
+
+يمكن استخدام Models في Django لإنشاء قاعدة بيانات للمكتبة. يمكن إنشاء Models لتمثيل الكتب، والكتاب، والдатات. يمكن إنشاء قاعدة بيانات للمكتبة باستخدام Models، وتتمثل وظيفتها في إنشاء علاقات بين الكائنات.
+
+from django.db import models
+
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+    publication_date = models.DateField()
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    books = models.ManyToManyField(Book)
+
+class Date(models.Model):
+    publication_date = models.DateField()
+    books = models.ManyToManyField(Book)
+استخدام Models لإنشاء قواعد بيانات
+
+يمكن استخدام Models لإنشاء قواعد بيانات في Django. يتم إنشاء قواعد بيانات باستخدام Models، وتتمثل وظيفتها في تمثيل البيانات في قاعدة البيانات. يمكن استخدام Models لإنشاء قواعد بيانات معقدة، وتتمثل وظيفتها في إنشاء علاقات بين الكائنات.
+
+from django.db import models
+
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+    publication_date = models.DateField()
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    books = models.ManyToManyField(Book)
+
+class Date(models.Model):
+    publication_date = models.DateField()
+    books = models.ManyToManyField(Book)
+
+# إنشاء قاعدة بيانات
+Book.objects.create(title="Book1", author="Author1", publication_date="2020-01-01")
+Author.objects.create(name="Author1")
+Date.objects.create(publication_date="2020-01-01")
+استخدام Models لتحليل البيانات
+
+يمكن استخدام Models

@@ -1,0 +1,28 @@
+URLconf في Django
+
+URLconf (URL configuration) هو جزء من Django الذي يسمح بتعيين روابط URL إلى Views في التطبيق. يسمح URLconf بإنشاء روابط URL متقدمة بسهولة، مما يسهل إنشاء تطبيقات ويب متقدمة.
+
+دور URLconf في تعيين روابط URL
+
+* يسمح URLconf بتعيين روابط URL إلى Views في التطبيق، مما يسمح بإنشاء روابط URL متقدمة.
+* يسمح URLconf بتخصيص روابط URL لإنشاء روابط URL مختلفة لإنشاء تطبيقات ويب متقدمة.
+* يمكن استخدام URLconf لإنشاء روابط URL ديناميكية، مما يسمح بإنشاء روابط URL متقدمة.
+
+مثال على URLconf في Django
+
+# myapp/urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('products/', views.product_list, name='product_list'),
+    path('products/<int:pk>/', views.product_detail, name='product_detail'),
+]
+في هذا المثال، URLconf يتعين روابط URL إلى Views في التطبيق، مما يسمح بإنشاء روابط URL متقدمة. يمكن استخدام URLconf لإنشاء روابط URL مختلفة لإنشاء تطبيقات ويب متقدمة.
+
+كيفية استخدام URLconf
+
+1. إنشاء ملف urls.py في التطبيق.
+2. تعريف روابط URL في ملف urls.py.
+3. استخدام روابط URL في Views لإنشاء روابط URL متقدمة.

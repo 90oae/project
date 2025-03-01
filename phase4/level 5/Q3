@@ -1,0 +1,93 @@
+في Django، يُستخدم مفهوم Model-View-Controller (MVC) ولكن مع اختلاف بسيط في التسمية حيث يُعرف باسم Model-View-Template (MVT). هذا النموذج يساعد في تنظيم الكود وفصل المنطق التجاري عن واجهة المستخدم، مما يجعل التطبيقات أكثر تنظيماً وسهولة في الصيانة.
+
+### شرح مكونات MVT في Django:
+
+1. Model (النموذج):
+   - الوظيفة: يمثل Model طبقة البيانات في التطبيق. وهو مسؤول عن إدارة البيانات والتفاعل مع قاعدة البيانات.
+   - التطبيق: في Django، يتم تعريف النماذج (Models) كفئات Python والتي ترث من django.db.models.Model. كل حقل في النموذج يمثل عموداً في جدول قاعدة البيانات.
+   - مثال:
+    
+     from django.db import models
+
+     class Product(models.Model):
+         name = models.CharField(max_length=100)
+         price = models.DecimalField(max_digits=10, decimal_places=2)
+         description = models.TextField()
+     
+2. View (العرض):
+   - الوظيفة: View هي المسؤولة عن معالجة طلبات المستخدم وإرجاع الردود المناسبة. تقوم بجلب البيانات من النماذج (Models) وتحديد كيفية عرضها.
+   - التطبيق: في Django، يتم تعريف Views كوظائف أو فئات. تقوم الـ Views بالتعامل مع طلبات HTTP وإرجاع استجابات HTTP.
+   - مثال:
+    
+     from django.shortcuts import render
+     from .models import Product
+
+     def product_list(request):
+         products = Product.objects.all()
+         return render(request, 'products/list.html', {'products': products})
+     
+3. Template (القالب):
+   - الوظيفة: Template هي المسؤولة عن عرض البيانات التي تم تجهيزها بواسطة الـ View. وهي تحدد كيفية عرض البيانات للمستخدم.
+   - التطبيق: في Django، يتم كتابة القوالب (Templates) باستخدام لغة قوالب Django والتي تسمح بدمج HTML مع بيانات الديناميكية.
+   - مثال:
+    
+     <!-- products/list.html -->
+     <h1>Product List</h1>
+     <ul>
+     {% for product in products %}
+         <li>{{ product.name }} - {{ product.price }}</li>
+     {% endfor %}
+     </ul>
+     
+### كيف يتم تطبيق MVT في بناء تطبيقات الويب؟
+
+1. طلب المستخدم: عندما يقوم المستخدم بطلب صفحة معينة (مثل قائمة المنتجات)، يتم إرسال طلب HTTP إلى الخادم.
+
+2. معالجة الطلب: يتم توجيه الطلب إلى الـ View المناسبة بناءً على تكوين الـ URL.
+
+3. جلب البيانات: تقوم الـ View بجلب البيانات من النموذج (Model) المطلوب. على سبيل المثال، قد تقوم بجلب جميع المنتجات من قاعدة البيانات.
+
+4. تجهيز البيانات: تقوم الـ View بتجهيز البيانات وإرسالها إلى القالب (Template) المناسب.
+
+5. عرض البيانات: يقوم القالب (Template) بعرض البيانات في شكل HTML ويتم إرسالها كاستجابة HTTP إلى المستخدم.
+
+### مثال عملي:
+
+1. تكوين الـ URL:
+  
+   from django.urls import path
+   from . import views
+
+   urlpatterns = [
+       path('products/', views.product_list, name='product_list'),
+   ]
+   
+2. النموذج (Model):
+  
+   from django.db import models
+
+   class Product(models.Model):
+       name = models.CharField(max_length=100)
+       price = models.DecimalField(max_digits=10, decimal_places=2)
+       description = models.TextField()
+   
+3. العرض (View):
+  
+   from django.shortcuts import render
+   from .models import Product
+
+   def product_list(request):
+       products = Product.objects.all()
+       return render(request, 'products/list.html', {'products': products})
+   
+4. القالب (Template):
+  
+   <!-- products/list.html -->
+   <h1>Product List</h1>
+   <ul>
+   {% for product in products %}
+       <li>{{ product.name }} - {{ product.price }}</li>
+   {% endfor %}
+   </ul>
+   
+باختصار، MVT في Django يساعد في تنظيم الكود وفصل المنطق التجاري عن واجهة المستخدم، مما يجعل تطبيقات الويب أكثر تنظيماً وسهولة في الصيانة والتوسع.

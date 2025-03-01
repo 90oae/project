@@ -1,0 +1,65 @@
+Querysets في Django
+
+مفهوم الـ "Querysets"
+
+في Django، يُعرف QuerySet باسم مجموعة من البيانات التي تم إنشاؤها من قاعدة البيانات. يُستخدم QuerySet لاستخراج البيانات من قاعدة البيانات وتطبيق عمليات تحرير على البيانات. QuerySet هو نوع من أنواع الـ "iterables" في Python، مما يعني أنه يمكن استخدامه في لوبيات باستخدام for أو list().
+
+ميزات الـ "Querysets"
+
+* الاسترجاع: يمكن استرجاع البيانات من قاعدة البيانات باستخدام QuerySet.
+* التحقق: يمكن تحقيق شروط معينة على البيانات باستخدام QuerySet.
+* التحليل: يمكن تحليل البيانات باستخدام QuerySet.
+* التحرير: يمكن تحرير البيانات باستخدام QuerySet.
+
+استخدام الـ "Querysets"
+
+1. إنشاء QuerySet
+
+يمكن إنشاء QuerySet باستخدام Model.objects:
+from django.db import models
+
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+
+# إنشاء QuerySet
+books = Book.objects.all()
+2. استرجاع البيانات
+
+يمكن استرجاع البيانات من قاعدة البيانات باستخدام QuerySet:
+# استرجاع جميع الكتب
+books = Book.objects.all()
+
+# استرجاع كتاب معين
+book = Book.objects.get(id=1)
+
+# استرجاع الكتب حسب عنوانها
+books = Book.objects.filter(title__contains='Python')
+3. تحقيق شروط
+
+يمكن تحقيق شروط معينة على البيانات باستخدام QuerySet:
+# استرجاع الكتب التي تم إنشاؤها في السنة الحالية
+books = Book.objects.filter(published_date__year=datetime.date.today().year)
+
+# استرجاع الكتب التي تم إنشاؤها قبل عام من تاريخ اليوم
+books = Book.objects.filter(published_date__lt=datetime.date.today() - datetime.timedelta(days=365))
+4. تحليل البيانات
+
+يمكن تحليل البيانات باستخدام QuerySet:
+# استرجاع العدد الكلي للكتب
+total_books = Book.objects.count()
+
+# استرجاع متوسط سعر الكتب
+average_price = Book.objects.aggregate(avg_price=Avg('price'))['avg_price']
+5. تحرير البيانات
+
+يمكن تحرير البيانات باستخدام QuerySet:
+# تحرير عنوان كتاب
+book = Book.objects.get(id=1)
+book.title = 'كتاب جديد'
+book.save()
+
+# حذف كتاب
+book = Book.objects.get(id=1)
+book.delete()
+باستخدام QuerySet، يمكنك استخراج البيانات من قاعدة البيانات وتطبيق عمليات تحرير على البيانات في Django.

@@ -1,0 +1,54 @@
+@api_view(['GET'])
+def recommend_products(request):
+    user_id = request.user.id
+    recommended_products = get_recommendations_for_user(user_id)
+    data = [{'id': p.id, 'name': p.name, 'category': p.category} for p in recommended_products]
+    return Response(data)
+
+ربط API في urls.py:
+
+from django.urls import path
+from .views import recommend_products
+
+urlpatterns = [
+    path('recommendations/', recommend_products, name='recommend_products'),
+]
+
+
+---
+
+4. تحسين الأداء
+
+يمكن استخدام Redis لتخزين التوصيات المسبقة وتحديثها بشكل دوري.
+
+يمكن استخدام Celery لتنفيذ المهام الحسابية في الخلفية.
+
+
+
+---
+
+5. عرض التوصيات في واجهة Django
+
+في HTML، يمكن جلب التوصيات عبر API وإظهارها:
+
+<script>
+fetch('/recommendations/')
+  .then(response => response.json())
+  .then(data => {
+    let productsDiv = document.getElementById('recommendations');
+    data.forEach(product => {
+      let item = document.createElement('div');
+      item.innerHTML = <h3>${product.name}</h3><p>${product.category}</p>;
+      productsDiv.appendChild(item);
+    });
+  });
+</script>
+
+<div id="recommendations"></div>
+
+
+---
+
+خاتمة
+
+بهذا الشكل، يمكنك بناء نظام توصية متكامل باستخدام Django يعتمد على تحليل التفاعلات بين المستخدمين والمنتجات أو مقارنة خصائص المنتجات. يمكنك توسيع النموذج بدمج خوارزميات أكثر تعقيدًا مثل Deep Learning أو Graph-based Recommendations.

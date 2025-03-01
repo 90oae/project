@@ -1,0 +1,133 @@
+ما هو الـ REST API؟
+
+REST API هو اختصار لـ Representational State Transfer Application Programming Interface، وهو نمط معماري يُستخدم في تطوير خدمات الويب التي تسمح للتطبيقات بالتواصل مع بعضها البعض عبر بروتوكول HTTP باستخدام عمليات مثل GET، POST، PUT، DELETE.
+
+لماذا REST API في Django؟
+
+Django يوفّر إطار عمل قوي لإنشاء REST APIs عبر مكتبة Django REST Framework (DRF)، التي توفر أدوات مرنة وسهلة الاستخدام لإنشاء APIs آمنة وفعالة.
+
+
+---
+
+كيفية بناء REST API في Django لمتجر إلكتروني
+
+1. تثبيت الأدوات المطلوبة
+
+قبل البدء، تأكد من تثبيت Django وDjango REST Framework:
+
+pip install django djangorestframework
+
+2. إنشاء مشروع Django جديد
+
+django-admin startproject ecommerce
+cd ecommerce
+
+3. إنشاء تطبيق للمنتجات
+
+python manage.py startapp products
+
+4. إعداد settings.py
+
+في ملف settings.py، أضف rest_framework وproducts إلى INSTALLED_APPS:
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # إضافات
+    'rest_framework',
+    'products',
+]
+
+5. إنشاء نموذج المنتج في models.py
+
+انتقل إلى التطبيق products وافتح ملف models.py، ثم أضف نموذج منتج:
+
+from django.db import models
+
+class Product(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def str(self):
+        return self.name
+
+ثم نفذ الأوامر التالية لإنشاء قاعدة البيانات:
+
+python manage.py makemigrations
+python manage.py migrate
+
+6. إنشاء Serializer لتحويل البيانات
+
+افتح ملف serializers.py في مجلد products (أنشئه إذا لم يكن موجودًا) وأضف الكود التالي:
+
+from rest_framework import serializers
+from .models import Product
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = 'all'
+
+7. إنشاء API Views في views.py
+
+افتح views.py وأضف الكود التالي لإنشاء API باستخدام DRF:
+
+from rest_framework import viewsets
+from .models import Product
+from .serializers import ProductSerializer
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+8. إعداد الـ URLs
+
+افتح urls.py داخل مجلد products وأضف التالي:
+
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ProductViewSet
+
+router = DefaultRouter()
+router.register(r'products', ProductViewSet)
+
+urlpatterns = [
+    path('', include(router.urls)),
+]
+
+ثم أضف هذا إلى urls.py في المشروع الرئيسي ecommerce:
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('products.urls')),
+]
+
+9. تشغيل الخادم واختبار الـ API
+
+شغل السيرفر باستخدام:
+
+python manage.py runserver
+
+ثم انتقل إلى:
+
+http://127.0.0.1:8000/api/products/
+
+واختبر إضافة واستعراض المنتجات باستخدام Postman أو cURL.
+
+
+---
+
+خاتمة
+
+باستخدام Django REST Framework، يمكنك بناء REST API لمتجرك الإلكتروني بسهولة، مما يسمح لك بإنشاء تطبيقات ويب أو موبايل تتفاعل مع قاعدة البيانات بسلاسة. يمكنك توسيع المشروع عبر إضافة ميزات مثل التوثيق، الفلاتر، البحث، والتعامل مع المستخدمين.

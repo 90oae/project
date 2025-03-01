@@ -1,0 +1,42 @@
+يمكن إجراء اختبار لوظائف Django باستخدام TestCase عن طريق تطبيق الخطوات التالية:
+
+1. تعريف وحدة اختبار
+
+في الملف tests.py في التطبيق الذي ترغب في اختبار الوحدة، أضف تعريفًا للوحدة الاختبار:
+from django.test import TestCase
+from .models import نموذج_الاستقبال
+
+class اختبار_نموذج_الاستقبال(TestCase):
+    def setUp(self):
+        self.نموذج = نموذج_الاستقبال.objects.create(الاسم='John Doe', البريد_الإلكتروني='john@example.com', الرقم_الخليوي=1234567890)
+
+    def test_نموذج_الاستقبال(self):
+        self.assertEqual(self.نموذج.الاسم, 'John Doe')
+        self.assertEqual(self.نموذج.البريد_الإلكتروني, 'john@example.com')
+        self.assertEqual(self.نموذج.الرقم_الخليوي, 1234567890)
+2. تعريف متوافقية
+
+بعد تعريف الوحدة الاختبار، يمكنك تعريف متوافقية للوحدة الاختبار:
+class اختبار_نموذج_الاستقبال(TestCase):
+    def setUp(self):
+        self.نموذج = نموذج_الاستقبال.objects.create(الاسم='John Doe', البريد_الإلكتروني='john@example.com', الرقم_الخليوي=1234567890)
+
+    def test_نموذج_الاستقبال(self):
+        self.assertEqual(self.نموذج.الاسم, 'John Doe')
+        self.assertEqual(self.نموذج.البريد_الإلكتروني, 'john@example.com')
+        self.assertEqual(self.نموذج.الرقم_الخليوي, 1234567890)
+
+    def test_نموذج_الاستقبال_فاشل(self):
+        self.نموذج.الاسم = 'Jane Doe'
+        self.نموذج.البريد_الإلكتروني = 'jane@example.com'
+        self.نموذج.الرقم_الخليوي = 9876543210
+        self.assertEqual(self.نموذج.الاسم, 'Jane Doe')
+        self.assertEqual(self.نموذج.البريد_الإلكتروني, 'jane@example.com')
+        self.assertEqual(self.نموذج.الرقم_الخليوي, 9876543210)
+3. إجراء اختبار
+
+بعد تعريف الوحدة الاختبار، يمكنك إجراء اختبار الوحدة باستخدام الأمر التالي:
+python manage.py test
+4. تحليل النتائج
+
+بعد إجراء اختبار الوحدة، يمكنك تحليل النتائج لتحديد ما إذا كانت الوحدة الاختبار قد نجحت أو فشلت.

@@ -1,0 +1,25 @@
+URL Routing في Django هو نظام يحدد كيفية توجيه الطلبات الواردة إلى العروض (views) المناسبة داخل التطبيق. يتم ذلك باستخدام ملف urls.py، حيث يتم ربط عناوين URL بوظائف أو فئات العرض (views).
+
+كيفية توجيه المستخدمين في Django
+
+1. داخل ملف urls.py في التطبيق، يتم تعريف المسارات باستخدام path() أو re_path().
+
+
+2. كل مسار يربط نمط URL محدد بوظيفة أو كلاس عرض (View).
+
+
+3. عند زيارة المستخدم لـ URL معين، يقوم Django بمطابقة هذا URL مع الأنماط المحددة وإرسال الطلب إلى العرض المناسب.
+
+
+
+مثال على URL Routing في Django:
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),  # توجيه الصفحة الرئيسية
+    path('about/', views.about, name='about'),  # توجيه صفحة "من نحن"
+]
+
+عند زيارة /about/، يتم استدعاء دالة about من ملف views.py.
