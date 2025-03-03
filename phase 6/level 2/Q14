@@ -1,0 +1,121 @@
+بناء نموذج ذكاء اصطناعي للبيانات المتسلسلة باستخدام الشبكات العصبية المتكررة (RNN) في TensorFlow و PyTorch
+
+1. اختيار المكتبة المناسبة
+
+يمكن استخدام TensorFlow (مع Keras) أو PyTorch لبناء نموذج ذكاء اصطناعي يعتمد على الشبكات العصبية المتكررة (RNN). سنوضح كيفية تنفيذ ذلك في كلتا المكتبتين.
+
+
+---
+
+باستخدام TensorFlow (Keras)
+
+1. استيراد المكتبات الضرورية
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import SimpleRNN, LSTM, GRU, Dense, Embedding
+import numpy as np
+
+2. إعداد البيانات (مثال على بيانات نصية)
+
+# افتراض أن لدينا بيانات نصية ممثلة بأرقام
+X_train = np.random.randint(1000, size=(1000, 10))  # 1000 جملة، كل منها بطول 10 كلمات
+y_train = np.random.randint(2, size=(1000, 1))  # تصنيف ثنائي
+
+# تحويل المدخلات إلى متجهات رقمية
+vocab_size = 1000  # حجم المفردات
+embedding_dim = 64  # حجم تمثيل الكلمات
+sequence_length = 10  # طول التسلسل
+
+3. بناء النموذج باستخدام RNN أو LSTM
+
+model = Sequential([
+    Embedding(input_dim=vocab_size, output_dim=embedding_dim, input_length=sequence_length),
+    SimpleRNN(64, return_sequences=False),  # يمكن استبداله بـ LSTM أو GRU
+    Dense(1, activation='sigmoid')  # للخروج بتصنيف ثنائي
+])
+
+# تجميع النموذج
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# طباعة ملخص النموذج
+model.summary()
+
+4. تدريب النموذج
+
+model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2)
+
+
+---
+
+باستخدام PyTorch
+
+1. استيراد المكتبات الضرورية
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+2. إعداد البيانات (مثال على بيانات متسلسلة)
+
+# بيانات عشوائية بطول 10 لكل تسلسل
+X_train = torch.randint(0, 1000, (1000, 10))
+y_train = torch.randint(0, 2, (1000, 1)).float()
+
+# تعريف بعض المعلمات
+vocab_size = 1000
+embedding_dim = 64
+hidden_dim = 64
+sequence_length = 10
+
+3. بناء نموذج RNN باستخدام PyTorch
+
+class RNNModel(nn.Module):
+    def init(self, vocab_size, embedding_dim, hidden_dim):
+        super(RNNModel, self).init()
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.rnn = nn.RNN(embedding_dim, hidden_dim, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, 1)
+        self.sigmoid = nn.Sigmoid()
+    
+    def forward(self, x):
+        x = self.embedding(x)
+        x, _ = self.rnn(x)
+        x = self.fc(x[:, -1, :])  # أخذ آخر حالة مخفية
+        return self.sigmoid(x)
+
+# إنشاء نموذج
+model = RNNModel(vocab_size, embedding_dim, hidden_dim)
+
+# تحديد وظيفة الخسارة والمُحسّن
+criterion = nn.BCELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+4. تدريب النموذج
+
+# تحويل البيانات إلى تنسيقات PyTorch
+X_train, y_train = X_train.long(), y_train.float()
+
+# التدريب
+epochs = 10
+for epoch in range(epochs):
+    optimizer.zero_grad()
+    outputs = model(X_train)
+    loss = criterion(outputs, y_train)
+    loss.backward()
+    optimizer.step()
+    
+    if (epoch + 1) % 2 == 0:
+        print(f"Epoch [{epoch+1}/{epochs}], Loss: {loss.item():.4f}")
+
+
+---
+
+أي مكتبة أستخدم؟
+
+TensorFlow/Keras: أسهل في الاستخدام، مناسب للمبتدئين.
+
+PyTorch: يوفر مرونة أكثر في التخصيص والتعديل، وهو شائع في البحث العلمي.
+
+
+يمكنك الاختيار حسب متطلبات المشروع وتفضيلاتك.

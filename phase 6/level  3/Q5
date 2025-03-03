@@ -1,0 +1,160 @@
+♡, [3/3/2025 11:43 PM]
+1. تقسيم البيانات إلى تدريب واختبار باستخدام train_test_split في Scikit-learn
+
+في التعلم الآلي، من المهم تقسيم البيانات إلى مجموعة تدريب (Training set) ومجموعة اختبار (Testing set) لضمان تقييم دقيق لأداء النموذج. يتم ذلك باستخدام train_test_split من مكتبة Scikit-learn.
+
+مثال عملي:
+
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+# إنشاء بيانات عشوائية
+X = np.random.rand(100, 5)  # 100 عينة، كل منها تحتوي على 5 ميزات
+y = np.random.rand(100)  # القيم المستهدفة
+
+# تقسيم البيانات بنسبة 80% تدريب و20% اختبار
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(f"حجم بيانات التدريب: {X_train.shape}, حجم بيانات الاختبار: {X_test.shape}")
+
+تأثير تغيير نسبة التدريب والاختبار:
+
+نسبة تدريب كبيرة (مثل 90%): تعطي النموذج بيانات أكثر للتعلم، ولكن قد يكون التقييم غير دقيق بسبب قلة بيانات الاختبار.
+
+نسبة اختبار كبيرة (مثل 40%): توفر تقييمًا أفضل للنموذج ولكن قد تقلل من جودة التعلّم بسبب قلة بيانات التدريب.
+
+عادةً، النسبة المثالية هي 80% تدريب و20% اختبار أو 70% تدريب و30% اختبار حسب حجم البيانات.
+
+
+
+---
+
+2. استخدام خوارزمية الانحدار الخطي (Linear Regression) لتنبؤ القيم المستقبلية
+
+الانحدار الخطي هو نموذج بسيط يستخدم للتنبؤ بالقيم المستمرة بناءً على المتغيرات المستقلة.
+
+مثال عملي:
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+# إنشاء بيانات عشوائية
+X = np.random.rand(100, 1) * 10  # 100 عينة، بميزة واحدة
+y = 2.5 * X.flatten() + np.random.randn(100) * 2  # العلاقة الحقيقية: y = 2.5X + ضوضاء
+
+# تقسيم البيانات
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# إنشاء النموذج والتدريب
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# التنبؤ بالقيم المستقبلية
+y_pred = model.predict(X_test)
+
+# تقييم النموذج
+mae = mean_absolute_error(y_test, y_pred)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+print(f"MAE: {mae:.2f}, RMSE: {rmse:.2f}")
+
+تحليل الكود:
+
+1. إنشاء بيانات عشوائية لعلاقة خطية بين X و y.
+
+
+2. تقسيم البيانات إلى تدريب واختبار.
+
+
+3. إنشاء نموذج LinearRegression وتدريبه على بيانات التدريب.
+
+
+4. التنبؤ بالقيم المستقبلية باستخدام model.predict().
+
+
+5. تقييم النموذج باستخدام:
+
+Mean Absolute Error (MAE): يقيس متوسط الفروق المطلقة بين القيم الفعلية والمتوقعة.
+
+Root Mean Squared Error (RMSE): يقيس مدى دقة النموذج بطريقة تعاقب الأخطاء الكبيرة أكثر من الصغيرة.
+
+
+
+
+
+---
+
+3. الطريقة الأفضل لاختيار أفضل نموذج عند وجود مجموعة كبيرة من النماذج
+
+عند التعامل مع مجموعة كبيرة من النماذج، هناك طرق مختلفة لاختيار النموذج الأفضل، منها:
+
+أ. استخدام التحقق المتقاطع (Cross-Validation)
+
+يساعد التحقق المتقاطع في التأكد من أن النموذج لا يعتمد على تقسيم معين للبيانات، ويتم تطبيقه كالتالي:
+
+from sklearn.model_selection import cross_val_score
+
+# تطبيق التحقق المتقاطع
+scores = cross_val_score(model, X, y, cv=5, scoring='neg_mean_squared_error')
+rmse_scores = np.sqrt(-scores)
+
+print(f"متوسط RMSE عبر التحقق المتقاطع: {rmse_scores.mean():.2f}")
+
+cv=5 يعني تقسيم البيانات إلى 5 أجزاء، كل مرة يتم استخدام 4 منها للتدريب و1 للاختبار.
+
+يحسن التحقق المتقاطع من ثبات النموذج ويقلل من احتمالية التحيز بسبب تقسيم معين للبيانات.
+
+
+ب. مقارنة النماذج باستخدام Grid Search أو Random Search
+
+GridSearchCV: يجرب جميع القيم الممكنة للمعلمات لاختيار الأفضل.
+
+RandomizedSearchCV: يختار عشوائيًا مجموعة من القيم مما يوفر الوقت.
+
+
+مثال على استخدام Grid Search مع الانحدار الخطي المنتظم (Ridge Regression):
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import Ridge
+
+# تحديد القيم الممكنة لمعامل الانتظام
+param_grid = {'alpha': [0.1, 1, 10, 100]}
+
+# البحث عن أفضل قيمة للمعامل
+ridge = Ridge()
+grid_search = GridSearchCV(ridge, param_grid, cv=5, scoring='neg_mean_squared_error')
+grid_search.fit(X_train, y_train)
+
+print(f"أفضل قيمة لـ alpha: {grid_search.best_params_}")
+
+يقوم GridSearchCV باختبار جميع القيم في param_grid واختيار الأفضل بناءً على أداء التحقق المتقاطع.
+
+
+ج. استخدام AutoML لتحديد النموذج الأمثل
+
+إذا كنت تتعامل مع عدد كبير جدًا من النماذج، يمكن استخدام أدوات AutoML مثل:
+
+TPOT (تحسين عملية اختيار النموذج تلقائيًا).
+
+♡, [3/3/2025 11:43 PM]
+Auto-sklearn (يستخدم أساليب التعلم الفوقي لاختيار النموذج الأفضل).
+
+
+
+---
+
+الخلاصة:
+
+1. تقسيم البيانات باستخدام train_test_split يساعد في تقييم النموذج، وتؤثر نسبة التدريب/الاختبار على الأداء.
+
+
+2. استخدام الانحدار الخطي للتنبؤ بالقيم المستقبلية مع التقييم باستخدام MAE و RMSE.
+
+
+3. اختيار النموذج الأفضل يتم عبر عدة طرق:
+
+التحقق المتقاطع (Cross-Validation) لتحسين دقة التقييم.
+
+البحث عن أفضل المعلمات (GridSearchCV) لاختيار القيم المثلى.
+
+استخدام AutoML لأتمتة عملية اختيار النموذج.

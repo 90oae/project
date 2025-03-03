@@ -1,0 +1,137 @@
+♡, [3/4/2025 12:27 AM]
+لاختبار تطبيق Flask بشكل شامل باستخدام pytest و Flask-Testing، يمكنك اتباع عدة خطوات لتغطية الاختبارات بشكل صحيح. سأشرح لك كيفية كتابة اختبارات لوظائف معينة مثل إضافة أو حذف المقالات، وكيفية محاكاة بيئات الاختبار مثل قاعدة البيانات خلال الاختبارات باستخدام Flask-Testing.
+
+1. إعداد البيئة:
+
+لتثبيت الأدوات اللازمة للاختبار، يجب عليك أولاً تثبيت pytest و Flask-Testing عبر pip:
+
+pip install pytest Flask-Testing
+
+2. إنشاء هيكل اختبار Flask باستخدام Flask-Testing:
+
+يمكنك إنشاء هيكل بسيط لاختبارات تطبيق Flask باستخدام Flask-Testing. غالبًا ما يتم استخدام TestCase من Flask-Testing لإنشاء اختبارات.
+
+import pytest
+from flask import Flask, jsonify, request
+from flask_testing import TestCase
+
+app = Flask(name)
+
+# مثال على تخزين المقالات
+articles = []
+
+# تعريف الواجهة لإضافة مقال
+@app.route('/article', methods=['POST'])
+def add_article():
+    data = request.get_json()
+    title = data.get('title')
+    content = data.get('content')
+    
+    if not title or not content:
+        return jsonify({"error": "Title and content are required"}), 400
+    
+    article = {"title": title, "content": content}
+    articles.append(article)
+    
+    return jsonify(article), 201
+
+# تعريف الواجهة لحذف مقال
+@app.route('/article/<int:article_id>', methods=['DELETE'])
+def delete_article(article_id):
+    if 0 <= article_id < len(articles):
+        articles.pop(article_id)
+        return jsonify({"message": "Article deleted"}), 200
+    return jsonify({"error": "Article not found"}), 404
+
+3. كتابة اختبارات لوظائف معينة:
+
+يمكنك الآن كتابة اختبارات لوظائف معينة مثل إضافة أو حذف المقالات.
+
+اختبار إضافة مقال:
+
+class TestAddArticle(TestCase):
+    
+    def create_app(self):
+        app.config['TESTING'] = True
+        return app
+
+    def test_add_article(self):
+        response = self.client.post('/article', json={"title": "New Article", "content": "This is the content of the article"})
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('New Article', response.json['title'])
+        self.assertIn('This is the content of the article', response.json['content'])
+
+اختبار حذف مقال:
+
+class TestDeleteArticle(TestCase):
+    
+    def create_app(self):
+        app.config['TESTING'] = True
+        return app
+
+    def test_delete_article(self):
+        # أضف مقال أولاً
+        self.client.post('/article', json={"title": "Article to delete", "content": "Content"})
+        
+        # تحقق من أن المقال موجود
+        response = self.client.delete('/article/0')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Article deleted', response.json['message'])
+        
+        # تحقق من أن المقال تم حذفه
+        response = self.client.delete('/article/0')
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('Article not found', response.json['error'])
+
+4. محاكاة بيئات الاختبار باستخدام Flask-Testing:
+
+لتعريف بيئة اختبار مع قاعدة بيانات مثلاً، يمكنك استخدام Flask-Testing لمحاكاة قاعدة بيانات. بشكل عام، عند العمل مع Flask وقاعدة بيانات مثل SQLAlchemy، قد ترغب في محاكاة قاعدة البيانات لتجنب التأثير على البيانات الحقيقية أثناء الاختبارات.
+
+مثال على محاكاة قاعدة البيانات في بيئة الاختبار:
+
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+class TestDatabase(TestCase):
+    
+    def create_app(self):
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # استخدام قاعدة بيانات في الذاكرة
+        db.init_app(app)
+        return app
+
+    def setUp(self):
+        # سيتم إنشاء قاعدة البيانات قبل كل اختبار
+        db.create_all()
+
+    def tearDown(self):
+        # سيتم حذف قاعدة البيانات بعد كل اختبار
+        db.session.remove()
+        db.drop_all()
+
+    def test_database_add_article(self):
+        new_article = Article(title="Database Article", content="Content for DB")
+        db.session.add(new_article)
+        db.session.commit()
+        
+        # تحقق من إضافة المقالة إلى قاعدة البيانات
+        article = Article.query.first()
+        self.assertEqual(article.title, "Database Article")
+
+5. تشغيل الاختبارات:
+
+♡, [3/4/2025 12:27 AM]
+بعد كتابة الاختبارات، يمكنك تشغيلها باستخدام pytest من خلال سطر الأوامر:
+
+pytest
+
+سيقوم pytest بالكشف عن اختباراتك في المجلدات والملفات المناسبة وتشغيلها.
+
+خلاصة:
+
+اختبارات الوظائف: يمكنك استخدام Flask-Testing لكتابة اختبارات لوظائف مثل إضافة أو حذف المقالات.
+
+محاكاة قاعدة البيانات: يمكنك محاكاة بيئة اختبار مع قاعدة بيانات باستخدام Flask-Testing من خلال SQLAlchemy أو أي قاعدة بيانات تفضلها.
+
+تشغيل الاختبارات: استخدم pytest لتشغيل الاختبارات بشكل سهل وفعال.

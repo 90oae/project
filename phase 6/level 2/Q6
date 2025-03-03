@@ -1,0 +1,113 @@
+يمكنك استخدام مكتبة OpenCV مع تقنيات الذكاء الاصطناعي، مثل الشبكات العصبية التلافيفية (CNN)، لتحليل ومعالجة الصور في تطبيق بايثون من خلال الجمع بين OpenCV ومكتبات التعلم العميق مثل TensorFlow أو PyTorch. إليك كيفية القيام بذلك:
+
+
+---
+
+1. تحميل البيانات ومعالجتها باستخدام OpenCV
+
+قبل استخدام CNN، تحتاج إلى تحميل الصور ومعالجتها بطريقة تناسب النموذج. يمكن استخدام OpenCV للقيام بذلك:
+
+import cv2
+import numpy as np
+
+# تحميل الصورة بالألوان
+image = cv2.imread("image.jpg")
+
+# تحويل الصورة إلى تدرج الرمادي
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# تغيير حجم الصورة إلى الأبعاد المطلوبة بواسطة الشبكة العصبية
+resized = cv2.resize(gray, (128, 128))
+
+# تحويل الصورة إلى مصفوفة NumPy وإعادة تشكيلها لتتناسب مع مدخلات CNN
+input_image = resized / 255.0  # تطبيع القيم إلى [0,1]
+input_image = np.reshape(input_image, (1, 128, 128, 1))  # إضافة البعد batch والبعد القنوي
+
+
+---
+
+2. بناء نموذج CNN باستخدام TensorFlow/Keras
+
+يمكنك استخدام TensorFlow/Keras لإنشاء شبكة عصبية تلافيفية (CNN) لتصنيف الصور:
+
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+# إنشاء نموذج CNN
+model = keras.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(128, 128, 1)),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(128, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(10, activation='softmax')  # 10 فئات للتصنيف
+])
+
+# تجميع النموذج
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# طباعة ملخص النموذج
+model.summary()
+
+
+---
+
+3. استخدام نموذج مدرّب لتحليل الصور
+
+إذا كان لديك نموذج مدرّب، يمكنك تحميله واستخدامه للتنبؤ بفئة الصورة:
+
+# تحميل النموذج المدرّب
+model = keras.models.load_model("my_model.h5")
+
+# التنبؤ بالفئة
+prediction = model.predict(input_image)
+predicted_class = np.argmax(prediction)
+
+print("الفئة المتوقعة:", predicted_class)
+
+
+---
+
+4. دمج OpenCV مع CNN لتطبيق عملي
+
+مثال على تطبيق كشف الوجوه باستخدام OpenCV والتصنيف باستخدام CNN:
+
+# تحميل مصنف الوجه من OpenCV
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+# قراءة الصورة واكتشاف الوجوه
+image = cv2.imread("person.jpg")
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+for (x, y, w, h) in faces:
+    face = gray[y:y+h, x:x+w]
+    face_resized = cv2.resize(face, (128, 128))
+    face_input = np.reshape(face_resized / 255.0, (1, 128, 128, 1))
+
+    # تصنيف الوجه
+    prediction = model.predict(face_input)
+    predicted_class = np.argmax(prediction)
+
+    # رسم مستطيل حول الوجه
+    cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
+    cv2.putText(image, f"Class: {predicted_class}", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+
+cv2.imshow("Detected Faces", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+---
+
+خلاصة
+
+OpenCV يستخدم لتحميل ومعالجة الصور (تحويل الألوان، تغيير الحجم، واكتشاف الميزات).
+
+CNN (باستخدام TensorFlow أو PyTorch) يستخدم لاستخراج الميزات من الصور وتصنيفها.
+
+يمكن دمج OpenCV مع CNN لإنشاء تطبيقات تحليل صور متقدمة، مثل التعرف على الوجوه، الكشف عن الكائنات، وتحليل الصور الطبية.

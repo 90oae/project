@@ -1,0 +1,140 @@
+الخطوات الأساسية لبناء نموذج تصنيف صور باستخدام PyTorch
+
+1. تثبيت المكتبات اللازمة
+
+إذا لم تكن مثبتة لديك، يمكنك تثبيتها باستخدام:
+
+pip install torch torchvision matplotlib
+
+2. تحميل البيانات وتحضيرها
+
+سنستخدم مجموعة بيانات CIFAR-10 المتاحة في torchvision.datasets، والتي تحتوي على 60,000 صورة ملونة موزعة على 10 فئات.
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torchvision
+import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
+
+# تعريف التحويلات لتحجيم الصور وتطبيعها
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))
+])
+
+# تحميل البيانات
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=32, shuffle=True)
+
+testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
+testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False)
+
+# تعريف الفئات
+classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+
+
+---
+
+3. بناء نموذج الشبكة العصبية
+
+سنستخدم شبكة عصبية التفافية (CNN) بسيطة لتحليل الصور.
+
+class CNN(nn.Module):
+    def init(self):
+        super(CNN, self).init()
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(64 * 8 * 8, 128)
+        self.fc2 = nn.Linear(128, 10)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        x = self.pool(self.relu(self.conv1(x)))
+        x = self.pool(self.relu(self.conv2(x)))
+        x = x.view(-1, 64 * 8 * 8)  # Flatten
+        x = self.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+model = CNN()
+
+
+---
+
+4. تحديد دالة الفقد والمُحسّن
+
+criterion = nn.CrossEntropyLoss()  # دالة فقد مناسبة لمهام التصنيف
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+
+---
+
+5. تدريب النموذج
+
+num_epochs = 5
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+for epoch in range(num_epochs):
+    running_loss = 0.0
+    for images, labels in trainloader:
+        images, labels = images.to(device), labels.to(device)
+
+        optimizer.zero_grad()
+        outputs = model(images)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item()
+    
+    print(f"Epoch {epoch+1}, Loss: {running_loss/len(trainloader):.4f}")
+
+print("Training Finished!")
+
+
+---
+
+6. اختبار النموذج
+
+correct = 0
+total = 0
+
+with torch.no_grad():
+    for images, labels in testloader:
+        images, labels = images.to(device), labels.to(device)
+        outputs = model(images)
+        _, predicted = torch.max(outputs, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+accuracy = 100 * correct / total
+print(f"Accuracy on test data: {accuracy:.2f}%")
+
+
+---
+
+ملخص
+
+1. قمنا بتحميل بيانات CIFAR-10 وتحضيرها.
+
+
+2. أنشأنا نموذج CNN بسيط.
+
+
+3. استخدمنا CrossEntropyLoss وAdam كدالة فقد ومُحسّن.
+
+
+4. قمنا بتدريب النموذج على البيانات.
+
+
+5. اختبرنا النموذج وحصلنا على دقة التصنيف.
+
+
+
+
+---
+
+يمكنك التعديل على الشبكة، مثل إضافة طبقات أو استخدام نموذج جاهز من torchvision.models مثل ResNet للحصول على أداء أفضل.

@@ -1,0 +1,106 @@
+بناء نموذج للتعرف على النصوص باستخدام تقنيات معالجة اللغة الطبيعية (NLP) في بايثون يمكن تحقيقه باستخدام مكتبات مثل spaCy و NLTK. فيما يلي خطوات أساسية لتطوير نموذج باستخدام كل واحدة منهما:
+
+
+---
+
+1. استخدام spaCy
+
+مكتبة spaCy قوية وسريعة لتحليل النصوص، وتحتوي على نماذج مدربة مسبقًا.
+
+الخطوات:
+
+1. تثبيت المكتبة وتحميل النموذج اللغوي
+
+pip install spacy
+python -m spacy download en_core_web_sm
+
+
+2. استخدام النموذج للتعرف على النصوص
+
+import spacy
+
+# تحميل النموذج اللغوي
+nlp = spacy.load("en_core_web_sm")
+
+# تحليل النص
+text = "Apple is looking at buying U.K. startup for $1 billion."
+doc = nlp(text)
+
+# استخراج الكيانات المسماة (Named Entities)
+for ent in doc.ents:
+    print(f"Entity: {ent.text}, Label: {ent.label_}")
+
+
+3. إمكانيات أخرى لـ spaCy:
+
+تصنيف الكيانات المسماة (NER)
+
+تحليل الجمل وتجزئتها (Tokenization & Parsing)
+
+تحليل العواطف والمشاعر (Sentiment Analysis) باستخدام نماذج مخصصة
+
+
+
+
+
+---
+
+2. استخدام NLTK
+
+مكتبة NLTK توفر أدوات قوية للتعامل مع النصوص، لكنها أبطأ من spaCy.
+
+الخطوات:
+
+1. تثبيت المكتبة وتنزيل الموارد المطلوبة
+
+pip install nltk
+
+import nltk
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('maxent_ne_chunker')
+nltk.download('words')
+
+
+2. تحليل النصوص واستخراج المعلومات
+
+from nltk import word_tokenize, pos_tag, ne_chunk
+
+text = "Apple is looking at buying U.K. startup for $1 billion."
+
+# تقسيم النص إلى كلمات
+words = word_tokenize(text)
+
+# تصنيف الكلمات
+pos_tags = pos_tag(words)
+
+# التعرف على الكيانات المسماة
+entities = ne_chunk(pos_tags)
+
+print(entities)
+
+
+3. إمكانيات أخرى لـ NLTK:
+
+تصفية الكلمات غير المهمة (Stopword Removal)
+
+تحليل الجمل والتصريفات اللغوية
+
+إنشاء نماذج تعلم آلي لمعالجة اللغة الطبيعية
+
+
+
+
+
+---
+
+مقارنة بين spaCy و NLTK
+
+
+---
+
+الخلاصة
+
+إذا كنت تحتاج إلى معالجة سريعة وفعالة، استخدم spaCy.
+
+إذا كنت بحاجة إلى أدوات تحليل لغوي متقدمة وتخصيص أكبر، استخدم NLTK.

@@ -1,0 +1,105 @@
+تقنيات التعلم بالنقل (Transfer Learning) تُعد من الأدوات القوية في تعلم الآلة (Machine Learning) والتعلم العميق (Deep Learning)، خاصة عند العمل مع مجموعة بيانات محدودة. توفر هذه التقنيات إمكانية الاستفادة من النماذج المدربة مسبقًا على مجموعات بيانات كبيرة، مما يحسن الأداء ويقلل الحاجة إلى موارد حسابية كبيرة أو بيانات ضخمة.
+
+أهمية Transfer Learning في بايثون
+
+1. تقليل الحاجة إلى البيانات: بدلاً من تدريب نموذج من الصفر، يمكن الاستفادة من الميزات المستخرجة بواسطة نموذج مدرب مسبقًا، مما يقلل من عدد البيانات المطلوبة.
+
+
+2. تسريع التدريب: النماذج المدربة مسبقًا تحتوي على ميزات جاهزة يمكن إعادة استخدامها، مما يقلل من وقت التدريب مقارنة ببناء نموذج من الصفر.
+
+
+3. تحسين الأداء: غالبًا ما تؤدي النماذج المدربة مسبقًا إلى دقة أفضل عند العمل على مشاكل مشابهة، خاصة في التطبيقات التي تتطلب التعرف على الأنماط مثل الرؤية الحاسوبية (Computer Vision) ومعالجة اللغات الطبيعية (NLP).
+
+
+4. إمكانية التخصيص: يمكن إعادة تدريب الطبقات العليا فقط (Fine-Tuning) لتكييف النموذج مع المهمة الجديدة، مما يسمح بالتخصيص دون فقدان المعرفة السابقة.
+
+
+
+
+---
+
+كيفية استخدام Transfer Learning في بايثون لتحسين أداء النماذج
+
+1. استخدام نموذج مدرب مسبقًا في رؤية الحاسوب
+
+مكتبة TensorFlow/Keras توفر العديد من النماذج المدربة مسبقًا مثل VGG16, ResNet, Inception، والتي يمكن استخدامها مباشرة:
+
+import tensorflow as tf
+from tensorflow.keras.applications import VGG16
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Flatten
+
+# تحميل النموذج المدرب مسبقًا بدون طبقات التصنيف النهائية
+base_model = VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+
+# تجميد طبقات النموذج الأساسي حتى لا يتم تحديثها أثناء التدريب
+base_model.trainable = False
+
+# إضافة طبقات جديدة للتصنيف حسب المهمة
+x = Flatten()(base_model.output)
+x = Dense(128, activation='relu')(x)
+x = Dense(1, activation='sigmoid')(x)  # لتصنيف ثنائي
+
+# إنشاء النموذج النهائي
+model = Model(inputs=base_model.input, outputs=x)
+
+# تجميع النموذج
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# عرض ملخص النموذج
+model.summary()
+
+في هذا المثال:
+
+استخدمنا VGG16 كقاعدة لاستخراج الميزات.
+
+أضفنا طبقات جديدة لتخصيص النموذج لمهمة تصنيف جديدة.
+
+قمنا بتجميد الطبقات الأصلية لتجنب تعديل الأوزان الأصلية.
+
+
+
+---
+
+2. استخدام Transfer Learning في معالجة اللغة الطبيعية (NLP)
+
+في NLP، يمكن استخدام نموذج BERT المدرب مسبقًا لتحسين أداء المهام النصية:
+
+from transformers import BertTokenizer, TFBertForSequenceClassification
+import tensorflow as tf
+
+# تحميل النموذج والـ Tokenizer
+model_name = "bert-base-uncased"
+tokenizer = BertTokenizer.from_pretrained(model_name)
+model = TFBertForSequenceClassification.from_pretrained(model_name, num_labels=2)
+
+# تحضير البيانات
+texts = ["This is a great movie!", "I did not like this movie."]
+inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="tf")
+
+# إجراء التنبؤات
+outputs = model(**inputs)
+logits = outputs.logits
+
+print(logits)  # القيم الأولية للتنبؤ
+
+في هذا المثال:
+
+استخدمنا BERT لنقل المعرفة في تصنيف النصوص.
+
+يمكن إعادة تدريب الطبقات العليا على بيانات جديدة لتحسين التكيف مع المهمة.
+
+
+
+---
+
+متى يُفضل استخدام Transfer Learning؟
+
+عند عدم توفر بيانات تدريب كافية.
+
+عندما يكون هناك نموذج مدرب مسبقًا على بيانات مشابهة.
+
+عندما يكون الزمن والموارد الحسابية محدودة.
+
+
+التعلم بالنقل هو استراتيجية فعالة جدًا لتوفير الوقت وتحسين الأداء، ويُستخدم على نطاق واسع في التطبيقات العملية.

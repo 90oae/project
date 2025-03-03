@@ -1,0 +1,189 @@
+
+إليك كيفية استخدام Flask مع SQLAlchemy لإنشاء مدونة تحتوي على وظائف تسجيل دخول و تسجيل مستخدمين، مع كيفية تعريف النماذج (Models) وتنفيذ عمليات CRUD (الإدخال، التحديث، والحذف):
+
+1. إعداد بيئة Flask مع SQLAlchemy:
+
+أولاً، تحتاج إلى تثبيت Flask و SQLAlchemy:
+
+pip install flask flask_sqlalchemy
+
+
+2. إعداد تطبيق Flask مع قاعدة البيانات:
+
+from flask import Flask, render_template, redirect, url_for, request, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+
+# إعداد التطبيق
+app = Flask(name)
+app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # أو يمكنك استخدام قاعدة بيانات أخرى
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+3. تعريف نماذج البيانات (Models) باستخدام SQLAlchemy:
+
+النموذج (Model) هو تمثيل للجدول في قاعدة البيانات. في هذا المثال، سنقوم بإنشاء نموذجين: أحدهما للمستخدمين وآخر للمدونات.
+
+# نموذج المستخدمين
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(60), nullable=False)
+    posts = db.relationship('Post', backref='author', lazy=True)  # العلاقة بين المستخدمين والمدونات
+
+# نموذج المدونات
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # الربط بين المدونة والمستخدم
+
+4. تنفيذ عمليات CRUD:
+
+أ. إضافة مستخدم جديد:
+
+# تسجيل مستخدم جديد
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+        
+        user = User(username=username, email=email, password=password)
+        db.session.add(user)
+        db.session.commit()
+        
+        flash('تم إنشاء الحساب بنجاح!', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+ب. تسجيل الدخول للمستخدم:
+
+# تسجيل الدخول
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        user = User.query.filter_by(email=email).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('home'))
+        else:
+            flash('فشل في تسجيل الدخول، تحقق من البريد الإلكتروني أو كلمة المرور.', 'danger')
+    return render_template('login.html')
+
+ج. إضافة مدونة جديدة:
+
+# إضافة مدونة جديدة
+@app.route("/post/new", methods=['GET', 'POST'])
+@login_required  # تأكيد أن المستخدم مسجل دخول
+def new_post():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        post = Post(title=title, content=content, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('تم إضافة المدونة بنجاح!', 'success')
+        return redirect(url_for('home'))
+    return render_template('create_post.html')
+
+د. عرض المدونات:
+
+# الصفحة الرئيسية لعرض المدونات
+@app.route("/")
+@app.route("/home")
+def home():
+    posts = Post.query.all()
+    return render_template('home.html', posts=posts)
+
+هـ. تحديث المدونة:
+
+♡, [3/4/2025 12:14 AM]
+# تحديث المدونة
+@app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        flash('لا يمكنك تعديل هذه المدونة', 'danger')
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        post.title = request.form['title']
+        post.content = request.form['content']
+        db.session.commit()
+        flash('تم تحديث المدونة بنجاح!', 'success')
+        return redirect(url_for('home'))
+    return render_template('update_post.html', post=post)
+
+و. حذف المدونة:
+
+# حذف المدونة
+@app.route("/post/<int:post_id>/delete", methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        flash('لا يمكنك حذف هذه المدونة', 'danger')
+        return redirect(url_for('home'))
+    
+    db.session.delete(post)
+    db.session.commit()
+    flash('تم حذف المدونة بنجاح!', 'success')
+    return redirect(url_for('home'))
+
+5. إعداد وظائف تسجيل الخروج:
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+6. إعداد مدير الجلسات (Login Manager):
+
+تحتاج إلى تعريف دالة لتحميل المستخدم عند كل طلب لتطبيق تسجيل الدخول:
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+7. هيكل ملفات Flask:
+
+لنفترض أن لديك هذا الهيكل لملفات المشروع:
+
+/myblog
+    /templates
+        home.html
+        register.html
+        login.html
+        create_post.html
+        update_post.html
+    app.py
+
+8. تشغيل التطبيق:
+
+بعد إعداد جميع الأكواد، يمكنك تشغيل التطبيق باستخدام:
+
+python app.py
+
+الخلاصة:
+
+تعريف النماذج: يتم باستخدام db.Model حيث يمثل كل نموذج جدول في قاعدة البيانات.
+
+CRUD: عمليات الإدخال، التحديث، والحذف تتم باستخدام db.session.add(), db.session.commit(), و db.session.delete() لتنفيذ التعديلات على قاعدة البيانات.
+
+
+يجب أن تكون الآن قادرًا على استخدام Flask و SQLAlchemy لإنشاء مدونة بها وظائف تسجيل الدخول و تسجيل مستخدمين.

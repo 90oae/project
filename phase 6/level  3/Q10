@@ -1,0 +1,117 @@
+1. تطبيق خوارزميات الشبكات العصبية (مثل MLP) باستخدام مكتبة Keras أو TensorFlow لتحليل البيانات
+
+تعد مكتبة Keras و TensorFlow من الأدوات الرائدة لبناء نماذج التعلم العميق، بما في ذلك الشبكات العصبية متعددة الطبقات (MLP). هنا طريقة لتطبيق نموذج MLP باستخدام Keras:
+
+خطوات بناء نموذج MLP باستخدام Keras:
+
+1. استيراد المكتبات الأساسية:
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+
+
+2. تحميل البيانات: على سبيل المثال، يمكنك استخدام مجموعة بيانات مثل Iris أو MNIST لتحليل البيانات:
+
+from sklearn.datasets import load_iris
+data = load_iris()
+X = data.data  # المدخلات
+y = data.target  # الفئات
+
+
+3. تحويل البيانات (إذا لزم الأمر): قد تحتاج إلى تحويل البيانات إلى تنسيق مناسب مثل ترميز الفئات (One-Hot Encoding):
+
+from tensorflow.keras.utils import to_categorical
+y = to_categorical(y, num_classes=3)
+
+
+4. بناء النموذج: يمكنك بناء نموذج MLP باستخدام طبقات Dense:
+
+model = Sequential([
+    Dense(64, input_dim=X.shape[1], activation='relu'),  # الطبقة الأولى
+    Dense(32, activation='relu'),  # الطبقة الثانية
+    Dense(3, activation='softmax')  # طبقة الخرج مع 3 فئات
+])
+
+
+5. تجميع النموذج: استخدم خوارزمية التحسين المناسبة مثل Adam، واختيار دالة الخسارة (مثل categorical_crossentropy لبيانات متعددة الفئات):
+
+model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
+
+
+6. تدريب النموذج: يمكنك الآن تدريب النموذج باستخدام بيانات التدريب:
+
+model.fit(X, y, epochs=50, batch_size=10)
+
+
+7. تقييم النموذج: بعد التدريب، يمكنك تقييم النموذج على بيانات اختبار أو مجموعة بيانات جديدة:
+
+accuracy = model.evaluate(X, y)
+print('Test accuracy:', accuracy[1])
+
+
+
+2. المقاييس التي يجب استخدامها لتقييم أداء نموذج تعلم عميق على مجموعة بيانات تصنيفية
+
+عند تقييم نموذج تعلم عميق لتصنيف البيانات، هناك العديد من المقاييس التي يمكن استخدامها بناءً على نوع المشكلة (ثنائية أو متعددة الفئات). أهم المقاييس تشمل:
+
+1. الدقة (Accuracy):
+
+تعريف: النسبة المئوية للتوقعات الصحيحة من إجمالي التوقعات.
+
+الاستخدام: تستخدم بشكل عام عندما تكون الفئات متوازنة.
+
+
+accuracy = model.evaluate(X_test, y_test)
+
+
+2. الدقة والاحتمال (Precision and Recall):
+
+الدقة (Precision): هي النسبة المئوية للتوقعات الصحيحة من إجمالي التوقعات التي تم تصنيفها بشكل إيجابي.
+
+الاحتمال (Recall): هي النسبة المئوية للتوقعات الصحيحة من إجمالي الفئات الفعلية الإيجابية.
+
+الاستخدام: تستخدم عندما يكون لديك بيانات غير متوازنة (حيث تكون بعض الفئات نادرة).
+
+
+from sklearn.metrics import precision_score, recall_score
+precision = precision_score(y_true, y_pred, average='macro')
+recall = recall_score(y_true, y_pred, average='macro')
+
+
+3. فائدة F1-Score:
+
+تعريف: هو متوسط الدقة والاحتمال، ويعد مقياسًا مهمًا عندما يكون لديك توازن بين الدقة والاحتمال.
+
+الاستخدام: مفيد في الحالات التي تكون فيها التوقعات الإيجابية السلبية متوازنة.
+
+
+from sklearn.metrics import f1_score
+f1 = f1_score(y_true, y_pred, average='macro')
+
+
+4. مصفوفة الالتباس (Confusion Matrix):
+
+تعريف: توفر تفاصيل حول التوقعات الخاطئة والصحيحة لكل فئة.
+
+الاستخدام: لفهم كيف يصنف النموذج البيانات إلى فئات معينة.
+
+
+from sklearn.metrics import confusion_matrix
+confusion = confusion_matrix(y_true, y_pred)
+
+
+5. منحنى ROC و AUC:
+
+الROC (Receiver Operating Characteristic curve): يوضح العلاقة بين المعدل الإيجابي الحقيقي (TPR) والمعدل السلبي الخاطئ (FPR).
+
+AUC (Area Under the Curve): هو المساحة تحت منحنى ROC ويعكس قدرة النموذج على التفريق بين الفئات.
+
+
+from sklearn.metrics import roc_auc_score
+auc = roc_auc_score(y_true, y_pred_proba)
+
+
+
+كل مقياس يعتمد على حالة التطبيق وخصائص البيانات، لذا من المهم استخدام مزيج من المقاييس للحصول على تقييم شامل لأداء النموذج.

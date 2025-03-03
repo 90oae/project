@@ -1,0 +1,136 @@
+استخدام خوارزميات التصنيف في بايثون وتحسين دقة النماذج
+
+1. تحميل البيانات ومعالجتها
+
+أول خطوة هي تحميل البيانات وتنظيفها وتجهيزها للنموذج. لنفترض أننا نعمل مع مجموعة بيانات "Iris" المتاحة في مكتبة sklearn.
+
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# تحميل البيانات
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# تقسيم البيانات إلى تدريب واختبار
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# تطبيع البيانات
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+---
+
+2. تدريب نموذج SVM و Random Forest
+
+بعد تجهيز البيانات، يمكننا تجربة نماذج تصنيف مختلفة مثل SVM و Random Forest.
+
+(أ) دعم الآلات المتجهية (SVM)
+
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+# إنشاء نموذج SVM
+svm_model = SVC(kernel='linear', C=1.0, random_state=42)
+
+# تدريب النموذج
+svm_model.fit(X_train, y_train)
+
+# التنبؤ على بيانات الاختبار
+y_pred_svm = svm_model.predict(X_test)
+
+# تقييم الأداء
+accuracy_svm = accuracy_score(y_test, y_pred_svm)
+print(f"SVM Accuracy: {accuracy_svm:.2f}")
+
+(ب) الغابة العشوائية (Random Forest)
+
+from sklearn.ensemble import RandomForestClassifier
+
+# إنشاء نموذج Random Forest
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# تدريب النموذج
+rf_model.fit(X_train, y_train)
+
+# التنبؤ على بيانات الاختبار
+y_pred_rf = rf_model.predict(X_test)
+
+# تقييم الأداء
+accuracy_rf = accuracy_score(y_test, y_pred_rf)
+print(f"Random Forest Accuracy: {accuracy_rf:.2f}")
+
+
+---
+
+3. تقييم أداء النماذج
+
+إلى جانب دقة التصنيف، هناك مقاييس أخرى لتقييم أداء النماذج مثل:
+
+دقة التصنيف (Accuracy): نسبة التوقعات الصحيحة.
+
+دقة الفئات (Precision): نسبة القيم المتوقعة صحيحة لكل فئة.
+
+الإسترجاع (Recall): نسبة القيم الصحيحة المسترجعة لكل فئة.
+
+مصفوفة الالتباس (Confusion Matrix): تصور توزيع الأخطاء.
+
+
+from sklearn.metrics import classification_report, confusion_matrix
+
+# تقرير أداء SVM
+print("SVM Classification Report:\n", classification_report(y_test, y_pred_svm))
+print("SVM Confusion Matrix:\n", confusion_matrix(y_test, y_pred_svm))
+
+# تقرير أداء Random Forest
+print("Random Forest Classification Report:\n", classification_report(y_test, y_pred_rf))
+print("Random Forest Confusion Matrix:\n", confusion_matrix(y_test, y_pred_rf))
+
+
+---
+
+4. تحسين دقة النموذج
+
+لتحسين أداء النموذج، يمكن تجربة:
+
+تحسين المعلمات (Hyperparameter Tuning) باستخدام GridSearchCV أو RandomizedSearchCV.
+
+توسيع البيانات (Data Augmentation) وزيادة حجم مجموعة التدريب.
+
+استخدام تقنيات اختيار الميزات (Feature Selection) لاختيار الميزات الأكثر أهمية.
+
+تجربة أنواع مختلفة من النماذج وتحديد الأفضل عبر تقاطع التحقق (Cross-Validation).
+
+
+مثال على تحسين المعلمات باستخدام GridSearchCV لـ SVM:
+
+from sklearn.model_selection import GridSearchCV
+
+# تحديد القيم الممكنة للمعلمات
+param_grid = {'C': [0.1, 1, 10], 'kernel': ['linear', 'rbf']}
+
+# تنفيذ البحث
+grid_search = GridSearchCV(SVC(), param_grid, cv=5, scoring='accuracy')
+grid_search.fit(X_train, y_train)
+
+# أفضل معلمات
+print("Best Parameters for SVM:", grid_search.best_params_)
+
+
+---
+
+النتيجة
+
+تم تدريب نموذجي تصنيف (SVM و Random Forest) على مجموعة بيانات Iris.
+
+تم تقييم النماذج باستخدام دقة التصنيف، مصفوفة الالتباس، وتقرير التصنيف.
+
+تم تحسين الأداء باستخدام تحسين المعلمات GridSearchCV.
+
+
+باستخدام هذه الخطوات، يمكن تحسين دقة أي نموذج تصنيف وتحليل البيانات بكفاءة في بايثون.

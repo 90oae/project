@@ -1,0 +1,112 @@
+دمج تقنيات الذكاء الاصطناعي مع تطبيقات بايثون لتحليل البيانات الكبيرة باستخدام Apache Spark أو Dask يتم عبر عدة خطوات تعتمد على اختيار المكتبات المناسبة وتكاملها مع هذه الأدوات القوية لمعالجة البيانات الضخمة. إليك الطرق الأساسية للقيام بذلك:
+
+
+---
+
+1. استخدام Apache Spark مع MLlib و PySpark
+
+Apache Spark هو إطار عمل قوي لمعالجة البيانات الكبيرة، ويمكن دمجه مع تقنيات الذكاء الاصطناعي من خلال مكتبة MLlib أو باستخدام PySpark مع مكتبات التعلم العميق مثل TensorFlow و Scikit-Learn.
+
+خطوات التنفيذ:
+
+1. تنصيب Spark و PySpark:
+
+pip install pyspark
+
+
+2. تحميل البيانات وتحليلها باستخدام PySpark:
+
+from pyspark.sql import SparkSession
+
+# إنشاء جلسة Spark
+spark = SparkSession.builder.appName("AI_with_Spark").getOrCreate()
+
+# قراءة البيانات
+df = spark.read.csv("big_data.csv", header=True, inferSchema=True)
+
+# عرض البيانات
+df.show(5)
+
+
+3. استخدام MLlib لبناء نموذج تعلم آلي:
+
+from pyspark.ml.classification import LogisticRegression
+from pyspark.ml.feature import VectorAssembler
+
+# تجهيز البيانات
+assembler = VectorAssembler(inputCols=["feature1", "feature2"], outputCol="features")
+data = assembler.transform(df)
+
+# تدريب نموذج الانحدار اللوجستي
+model = LogisticRegression(featuresCol="features", labelCol="label")
+trained_model = model.fit(data)
+
+# عمل التنبؤات
+predictions = trained_model.transform(data)
+predictions.select("label", "prediction").show(5)
+
+
+4. تكامل Spark مع TensorFlow و PyTorch باستخدام Petastorm أو TensorFlowOnSpark.
+
+
+
+
+---
+
+2. استخدام Dask لمعالجة البيانات والتعلم الآلي
+
+Dask هو بديل خفيف الوزن لـ Spark يسمح لك بتوزيع عمليات حسابية على عدة نوى معالجة أو أجهزة.
+
+خطوات التنفيذ:
+
+1. تنصيب Dask والمكتبات المرتبطة:
+
+pip install dask[complete] scikit-learn dask-ml
+
+
+2. قراءة وتحليل البيانات باستخدام Dask:
+
+import dask.dataframe as dd
+
+# قراءة البيانات الكبيرة باستخدام Dask
+df = dd.read_csv("big_data.csv")
+
+# إجراء عمليات تحليل البيانات
+print(df.describe().compute())
+
+
+3. دمج Dask مع Scikit-Learn للتعلم الآلي:
+
+from dask_ml.model_selection import train_test_split
+from dask_ml.linear_model import LogisticRegression
+
+# تقسيم البيانات
+X_train, X_test, y_train, y_test = train_test_split(df[["feature1", "feature2"]], df["label"], test_size=0.2)
+
+# تدريب نموذج التعلم الآلي
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# التنبؤ
+predictions = model.predict(X_test)
+
+
+4. دمج Dask مع مكتبات الذكاء الاصطناعي مثل TensorFlow و PyTorch باستخدام Dask-Delayed و Dask-ML.
+
+
+
+
+---
+
+3. مقارنة بين Apache Spark و Dask في الذكاء الاصطناعي
+
+
+---
+
+الخلاصة
+
+إذا كنت تعمل على تحليل بيانات ضخمة على clusters، فاستخدم Apache Spark مع MLlib أو تكامله مع TensorFlow.
+
+إذا كنت تحتاج إلى توزيع العمليات الحسابية على عدة أنوية محلية أو أجهزة، فاستخدم Dask مع Dask-ML.
+
+Dask أسهل وأخف للعمل على بيئة Python العادية، بينما Spark أكثر قوة في البيئات الكبيرة.

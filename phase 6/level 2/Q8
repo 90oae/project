@@ -1,0 +1,141 @@
+♡, [3/3/2025 11:21 PM]
+دمج تقنيات الذكاء الاصطناعي مع قواعد البيانات في بايثون يمكن أن يعزز عمليات البحث والتوصية من خلال استخدام خوارزميات التعلم الآلي وتحليل البيانات لاستخراج الأنماط وتقديم توصيات مخصصة. 
+
+
+---
+
+1. استخدام التعلم الآلي مع قواعد البيانات
+
+يمكنك دمج نظم إدارة قواعد البيانات (مثل MySQL، PostgreSQL، أو MongoDB) مع مكتبات التعلم الآلي مثل Scikit-learn، TensorFlow، أو PyTorch لإنشاء توصيات ذكية.
+
+مثال عملي: استخدام التوصيات بناءً على سجل المستخدمين
+
+الخطوة 1: استخراج البيانات من قاعدة البيانات باستخدام SQLAlchemy أو pymysql.
+
+الخطوة 2: تنظيف البيانات وتحليلها باستخدام Pandas و NumPy.
+
+الخطوة 3: استخدام خوارزميات التوصية (مثل SVD أو KNN) لتحليل البيانات.
+
+الخطوة 4: تقديم النتائج وتحديث قاعدة البيانات.
+
+
+import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+import pymysql
+
+# الاتصال بقاعدة البيانات واسترجاع البيانات
+conn = pymysql.connect(host='localhost', user='root', password='password', database='recommendation_db')
+query = "SELECT user_id, product_id, rating FROM user_ratings"
+df = pd.read_sql(query, conn)
+
+# تجهيز البيانات لخوارزمية KNN
+pivot_table = df.pivot(index='user_id', columns='product_id', values='rating').fillna(0)
+model = NearestNeighbors(metric='cosine', algorithm='brute')
+model.fit(pivot_table)
+
+# التوصية للمستخدم رقم 1
+user_index = 1
+distances, indices = model.kneighbors([pivot_table.loc[user_index]], n_neighbors=3)
+recommended_products = pivot_table.iloc[indices[0]].index.tolist()
+
+print(f"التوصيات للمستخدم {user_index}: {recommended_products}")
+
+
+---
+
+2. استخدام تقنيات البحث الذكي
+
+إذا كنت تعمل على قاعدة بيانات ضخمة، يمكنك تحسين البحث باستخدام نماذج المعالجة الطبيعية (NLP) لمحركات البحث مثل Elasticsearch أو استخدام FastText / BERT لفهم السياق.
+
+مثال: البحث باستخدام NLP في قاعدة بيانات PostgreSQL
+
+يمكنك استخدام pgvector في PostgreSQL لتخزين المتجهات واستخدام Word2Vec أو BERT لتحليل استعلامات البحث وتحسين النتائج.
+
+from sentence_transformers import SentenceTransformer
+import psycopg2
+import numpy as np
+
+# تحميل النموذج
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# الاتصال بقاعدة البيانات
+conn = psycopg2.connect("dbname=mydb user=myuser password=mypassword host=localhost")
+
+# تحويل النص إلى متجه
+query_text = "أفضل هاتف ذكي"
+query_vector = model.encode(query_text).tolist()
+
+# البحث في قاعدة البيانات باستخدام المتجهات
+cursor = conn.cursor()
+cursor.execute("SELECT product_name FROM products ORDER BY embedding <-> %s LIMIT 5", (query_vector,))
+results = cursor.fetchall()
+
+print("نتائج البحث:", results)
+
+
+---
+
+3. التوصية باستخدام الشبكات العصبية
+
+إذا كنت ترغب في تحسين دقة التوصيات، يمكنك استخدام الشبكات العصبية العميقة مثل Autoencoders أو Neural Collaborative Filtering (NCF).
+
+مثال: توصية المنتجات باستخدام شبكة عصبية بسيطة
+
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.layers import Input, Dense
+
+# بناء نموذج توصية بسيط
+model = keras.Sequential([
+    Input(shape=(10,)),  # عدد الميزات
+    Dense(64, activation='relu'),
+    Dense(32, activation='relu'),
+    Dense(1, activation='sigmoid')  # إخراج التصنيف
+])
+
+# تجميع النموذج
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+
+---
+
+4. استخدام Graph Databases للتوصيات المتقدمة
+
+إذا كنت تتعامل مع علاقات معقدة بين المستخدمين والمنتجات، يمكنك استخدام Neo4j ودمجه مع Python لاستخراج التوصيات بناءً على التحليل الشبكي.
+
+from neo4j import GraphDatabase
+
+# الاتصال بقاعدة Neo4j
+driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "password"))
+
+def get_recommendations(user_id):
+    with driver.session() as session:
+        result = session.run("""
+            MATCH (u:User {id: $user_id})-[:PURCHASED]->(p:Product)<-[:PURCHASED]-(other:User),
+                  (other)-[:PURCHASED]->(rec:Product)
+            WHERE NOT (u)-[:PURCHASED]->(rec)
+            RETURN rec.name AS recommendation, COUNT(*) AS score
+            ORDER BY score DESC LIMIT 5
+        """, user_id=user_id)
+        return [record["recommendation"] for record in result]
+
+print(get_recommendations(1))
+
+
+---
+
+الاستنتاج
+
+يمكنك دمج تقنيات الذكاء الاصطناعي مع قواعد البيانات في بايثون بعدة طرق:
+
+♡, [3/3/2025 11:21 PM]
+1. خوارزميات التوصية (KNN، SVD، Neural Networks) لتحليل تفضيلات المستخدمين.
+
+
+2. تحليل الاستعلامات باستخدام NLP لتحسين البحث.
+
+
+3. التخزين والاسترجاع المتقدم باستخدام pgvector أو Neo4j لاستخراج أنماط معقدة.
+
+
+4. استخدام الشبكات العصبية (Deep Learning) لزيادة دقة التوصيات.

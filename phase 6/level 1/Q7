@@ -1,0 +1,141 @@
+إضافة واجهات برمجة التطبيقات (APIs) RESTful في مدونة مبنية باستخدام Flask يتم من خلال بناء تطبيقات موجهة عبر بروتوكول HTTP مثل إضافة أو حذف أو تعديل المقالات أو التعليقات، وتعد Flask-RESTful إحدى الأدوات الشائعة لتسهيل إنشاء هذه الواجهات.
+
+الخطوات الأساسية لإضافة RESTful API باستخدام Flask:
+
+1. إعداد بيئة العمل:
+
+بداية، تأكد من أنك قمت بتثبيت Flask و Flask-RESTful عبر pip:
+
+pip install Flask Flask-RESTful
+
+2. إنشاء تطبيق Flask أساسي:
+
+قم بإنشاء تطبيق Flask عادي، ثم أضف Flask-RESTful له. سنبدأ بتصميم API للتفاعل مع المقالات والتعليقات.
+
+from flask import Flask, request
+from flask_restful import Api, Resource
+
+app = Flask(name)
+api = Api(app)
+
+3. إنشاء فئة Resource:
+
+في Flask-RESTful، كل واجهة API يمكن تمثيلها كفئة ترث من Resource، وتقوم بتنفيذ بعض الوظائف مثل get()، post()، put()، delete()، والتي تمثل العمليات الأساسية في REST.
+
+مثال على API لإضافة وحذف وتعديل المقالات:
+
+# قائمة المقالات بشكل افتراضي (يمكنك استبدالها بقاعدة بيانات حقيقية)
+posts = [
+    {"id": 1, "title": "First Post", "content": "This is my first post."},
+    {"id": 2, "title": "Second Post", "content": "This is my second post."}
+]
+
+class PostList(Resource):
+    # للحصول على جميع المقالات
+    def get(self):
+        return posts, 200
+
+    # لإضافة مقال جديد
+    def post(self):
+        data = request.get_json()  # الحصول على البيانات من الطلب
+        new_post = {
+            "id": len(posts) + 1,  # تعيين ID جديد للمقال
+            "title": data["title"],
+            "content": data["content"]
+        }
+        posts.append(new_post)  # إضافة المقال الجديد إلى القائمة
+        return new_post, 201
+
+class Post(Resource):
+    # للحصول على مقال معين بناءً على ID
+    def get(self, post_id):
+        post = next((post for post in posts if post["id"] == post_id), None)
+        if post is None:
+            return {"message": "Post not found"}, 404
+        return post, 200
+
+    # لتعديل مقال معين بناءً على ID
+    def put(self, post_id):
+        data = request.get_json()
+        post = next((post for post in posts if post["id"] == post_id), None)
+        if post is None:
+            return {"message": "Post not found"}, 404
+        post["title"] = data["title"]
+        post["content"] = data["content"]
+        return post, 200
+
+    # لحذف مقال معين بناءً على ID
+    def delete(self, post_id):
+        global posts
+        posts = [post for post in posts if post["id"] != post_id]
+        return {"message": "Post deleted"}, 200
+
+# إضافة الموارد إلى API
+api.add_resource(PostList, '/posts')  # المسار للحصول على جميع المقالات أو إضافة مقال
+api.add_resource(Post, '/posts/<int:post_id>')  # المسار للتفاعل مع مقال محدد (تعديل، حذف، عرض)
+
+if name == 'main':
+    app.run(debug=True)
+
+شرح الكود:
+
+PostList (GET و POST):
+
+GET /posts: يعرض جميع المقالات.
+
+POST /posts: يسمح بإضافة مقال جديد.
+
+
+Post (GET، PUT، DELETE):
+
+GET /posts/<post_id>: يعرض مقالًا معينًا بناءً على ID.
+
+PUT /posts/<post_id>: يقوم بتعديل المقال بناءً على ID.
+
+DELETE /posts/<post_id>: يحذف المقال بناءً على ID.
+
+
+
+4. تشغيل التطبيق:
+
+لتشغيل التطبيق على الخادم المحلي، استخدم الأمر التالي:
+
+python app.py
+
+5. اختبار API:
+
+يمكنك الآن اختبار API باستخدام أدوات مثل Postman أو cURL:
+
+GET: للحصول على جميع المقالات: GET http://127.0.0.1:5000/posts
+
+POST: لإضافة مقال جديد:
+
+{
+  "title": "New Post",
+  "content": "This is a new post"
+}
+
+GET: للحصول على مقال معين: GET http://127.0.0.1:5000/posts/1
+
+PUT: لتعديل مقال: PUT http://127.0.0.1:5000/posts/1
+
+{
+  "title": "Updated Title",
+  "content": "Updated content"
+}
+
+DELETE: لحذف مقال: DELETE http://127.0.0.1:5000/posts/1
+
+
+استخدام Flask-RESTful:
+
+Flask-RESTful تسهل بناء APIs من خلال:
+
+الاستفادة من Resource لتحديد الواجهات.
+
+التعامل مع الاستجابات والطلبات بشكل بسيط عبر request و response.
+
+سهولة إضافة مسارات من خلال api.add_resource().
+
+
+يمكنك بناء API بنفس الطريقة للتعامل مع التعليقات أو غيرها من الكيانات في مدونتك عبر إضافة فئات Resource أخرى مخصصة لكل نوع من البيانات.

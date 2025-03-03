@@ -1,0 +1,74 @@
+مشكلة Overfitting تحدث عندما تتعلم الشبكة العصبية الأنماط من بيانات التدريب بشكل جيد جدًا لدرجة أنها تفشل في التعميم على بيانات الاختبار أو البيانات الجديدة. لتخفيف هذه المشكلة عند استخدام الذكاء الاصطناعي في بايثون، هناك عدة تقنيات يمكن تطبيقها، منها:
+
+1. استخدام Dropout
+
+Dropout هي تقنية تقوم بتعطيل بعض الوحدات العشوائية (neurons) في الشبكة العصبية أثناء التدريب، مما يمنع الشبكة من الاعتماد بشكل مفرط على ميزات معينة.
+
+يمكن تطبيقها في Keras مثلًا:
+
+from tensorflow.keras.layers import Dropout
+
+model.add(Dropout(0.5))  # تعطيل 50% من الوحدات العشوائية أثناء التدريب
+
+
+2. زيادة البيانات (Data Augmentation)
+
+تساعد زيادة حجم وتنوع بيانات التدريب في جعل النموذج أكثر قدرة على التعميم.
+
+في رؤية الكمبيوتر (Computer Vision)، يمكن استخدام مكتبة TensorFlow/Keras لتطبيق التحويلات على الصور:
+
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+datagen = ImageDataGenerator(rotation_range=20, width_shift_range=0.2,
+                             height_shift_range=0.2, horizontal_flip=True)
+
+
+3. استخدام Regularization (تنظيم النموذج)
+
+L1 & L2 Regularization (Lasso & Ridge) تساعد في تقليل تعقيد النموذج عن طريق إضافة عقوبات على الأوزان الكبيرة.
+
+يمكن تطبيقها في Keras باستخدام kernel_regularizer:
+
+from tensorflow.keras.regularizers import l2
+
+model.add(Dense(64, activation='relu', kernel_regularizer=l2(0.01)))
+
+
+4. تقليل تعقيد النموذج (Reducing Model Complexity)
+
+يمكن أن يكون النموذج معقدًا جدًا بالنسبة لحجم البيانات، لذلك يمكن:
+
+تقليل عدد الطبقات أو عدد الوحدات العصبية (neurons) في كل طبقة.
+
+استخدام نموذج أبسط يتناسب مع البيانات.
+
+
+
+5. استخدام Early Stopping
+
+يقوم بإيقاف التدريب تلقائيًا عندما يتوقف الأداء على بيانات التحقق (Validation Data) عن التحسن.
+
+يمكن تطبيقه باستخدام Keras:
+
+from tensorflow.keras.callbacks import EarlyStopping
+
+early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+
+
+6. استخدام Batch Normalization
+
+يساعد في استقرار التدريب وتقليل الاعتماد على بعض القيم المتطرفة في البيانات.
+
+يمكن إضافته بعد كل طبقة كثيفة (Dense) أو طبقة التلافيف (Convolutional) في Keras:
+
+from tensorflow.keras.layers import BatchNormalization
+
+model.add(BatchNormalization())
+
+
+7. زيادة حجم البيانات (More Training Data)
+
+كلما زاد حجم البيانات المتاحة، زادت قدرة النموذج على التعميم بشكل صحيح.
+
+
+تطبيق هذه التقنيات معًا يمكن أن يساعد في تحسين أداء الشبكات العصبية وتقليل Overfitting.

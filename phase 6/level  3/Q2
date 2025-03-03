@@ -1,0 +1,72 @@
+1. إنشاء مصفوفة Numpy تحتوي على قيم عشوائية وتغيير قيمها وفقًا لشروط معينة:
+
+يمكنك استخدام numpy.random لإنشاء مصفوفة عشوائية ثم تعديل قيمها بناءً على شروط محددة. إليك مثالًا عمليًا:
+
+import numpy as np
+
+# إنشاء مصفوفة 4×4 تحتوي على أعداد عشوائية بين 0 و 1
+matrix = np.random.rand(4, 4)
+print("Original Matrix:\n", matrix)
+
+# تغيير القيم التي تكون أكبر من 0.5 إلى 1، وأقل من أو تساوي 0.5 إلى 0
+matrix[matrix > 0.5] = 1
+matrix[matrix <= 0.5] = 0
+
+print("Modified Matrix:\n", matrix)
+
+
+---
+
+2. حساب المتوسط، الوسيط، والانحراف المعياري لمصفوفة Numpy متعددة الأبعاد:
+
+- حساب المتوسط (Mean):
+
+يتم حساب المتوسط باستخدام numpy.mean():
+
+mean_value = np.mean(matrix)
+
+لإيجاد المتوسط عبر محور معين:
+
+mean_axis0 = np.mean(matrix, axis=0)  # متوسط كل عمود
+mean_axis1 = np.mean(matrix, axis=1)  # متوسط كل صف
+
+- حساب الوسيط (Median):
+
+يتم حساب الوسيط باستخدام numpy.median():
+
+median_value = np.median(matrix)
+
+لحساب الوسيط على محور معين:
+
+median_axis0 = np.median(matrix, axis=0)
+median_axis1 = np.median(matrix, axis=1)
+
+- حساب الانحراف المعياري (Standard Deviation):
+
+يتم حساب الانحراف المعياري باستخدام numpy.std():
+
+std_value = np.std(matrix)
+
+لحساب الانحراف المعياري على محور معين:
+
+std_axis0 = np.std(matrix, axis=0)
+std_axis1 = np.std(matrix, axis=1)
+
+مثال عملي على حساب هذه القيم:
+
+import numpy as np
+
+# إنشاء مصفوفة 3×3 تحتوي على أعداد صحيحة عشوائية بين 1 و 10
+matrix = np.random.randint(1, 10, (3, 3))
+print("Matrix:\n", matrix)
+
+# حساب القيم الإحصائية
+mean_value = np.mean(matrix)
+median_value = np.median(matrix)
+std_value = np.std(matrix)
+
+print(f"Mean: {mean_value}")
+print(f"Median: {median_value}")
+print(f"Standard Deviation: {std_value}")
+
+بهذه الطريقة، يمكنك إنشاء مصفوفات عشوائية وتحليل بياناتها باستخدام NumPy.
