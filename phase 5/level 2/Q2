@@ -1,0 +1,105 @@
+لإضافة ميزات مثل التدوير (Rotate) أو الاقتصاص (Crop) للصورة بعد رفعها في تطبيق Flask، يمكن استخدام مكتبة Pillow لمعالجة الصور. إليك كيفية القيام بذلك:
+
+1. إعداد بيئة العمل
+
+أولًا، تأكد من تثبيت المكتبات اللازمة:
+
+pip install flask pillow
+
+
+---
+
+2. إنشاء تطبيق Flask مع ميزات التعديل على الصور
+
+from flask import Flask, request, jsonify
+from PIL import Image
+import os
+
+app = Flask(name)
+UPLOAD_FOLDER = 'uploads'
+PROCESSED_FOLDER = 'processed'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    
+    file = request.files['image']
+    filename = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(filename)
+
+    return jsonify({"message": "File uploaded successfully", "filename": file.filename}), 200
+
+@app.route('/process', methods=['POST'])
+def process_image():
+    data = request.json
+    filename = data.get('filename')
+    operation = data.get('operation')  # "rotate" or "crop"
+    params = data.get('params', {})
+
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    if not os.path.exists(filepath):
+        return jsonify({"error": "File not found"}), 404
+
+    try:
+        img = Image.open(filepath)
+
+        if operation == "rotate":
+            angle = params.get("angle", 90)  # زاوية الدوران الافتراضية 90 درجة
+            img = img.rotate(angle, expand=True)
+
+        elif operation == "crop":
+            left = params.get("left", 0)
+            top = params.get("top", 0)
+            right = params.get("right", img.width)
+            bottom = params.get("bottom", img.height)
+            img = img.crop((left, top, right, bottom))
+
+        processed_filename = os.path.join(PROCESSED_FOLDER, f"processed_{filename}")
+        img.save(processed_filename)
+
+        return jsonify({"message": "Image processed successfully", "processed_file": processed_filename}), 200
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if name == 'main':
+    app.run(debug=True)
+
+
+---
+
+3. استخدام API
+
+رفع صورة
+
+curl -X POST -F "image=@path/to/image.jpg" http://127.0.0.1:5000/upload
+
+تدوير الصورة
+
+curl -X POST http://127.0.0.1:5000/process -H "Content-Type: application/json" \
+-d '{"filename": "image.jpg", "operation": "rotate", "params": {"angle": 180}}'
+
+اقتصاص الصورة
+
+curl -X POST http://127.0.0.1:5000/process -H "Content-Type: application/json" \
+-d '{"filename": "image.jpg", "operation": "crop", "params": {"left": 50, "top": 50, "right": 200, "bottom": 200}}'
+
+
+---
+
+ما يحدث هنا:
+
+1. يرفع المستخدم الصورة عبر /upload.
+
+
+2. يرسل طلبًا إلى /process لتعديل الصورة باستخدام التدوير أو الاقتصاص.
+
+
+3. يحفظ التطبيق الصورة المعدلة في المجلد processed/.
+
+
+
+يمكنك تحسين التطبيق بإضافة واجهة رسومية أو دعم مزيد من التعديلات على الصور!

@@ -1,0 +1,123 @@
+يمكن استخدام مكتبة Pillow في Flask لتحرير الصور بعدة طرق، مثل تغيير الحجم، إضافة الفلاتر، التدوير، ودمج الصور. إليك بعض الأمثلة العملية:
+
+
+---
+
+1. تعديل صورة باستخدام Flask و Pillow (تغيير الحجم أو إضافة فلتر)
+
+خطوات التطبيق:
+
+رفع صورة عبر Flask
+
+تعديل الصورة باستخدام Pillow
+
+إعادة إرسال الصورة المعدلة للمستخدم
+
+
+مثال لتغيير حجم الصورة وإضافة فلتر:
+
+from flask import Flask, request, send_file
+from PIL import Image, ImageFilter
+import io
+
+app = Flask(name)
+
+@app.route('/edit-image', methods=['POST'])
+def edit_image():
+    if 'image' not in request.files:
+        return "يرجى رفع صورة", 400
+
+    image_file = request.files['image']
+    image = Image.open(image_file)
+
+    # تغيير الحجم
+    image = image.resize((300, 300))
+
+    # إضافة فلتر (تغبيش الصورة)
+    image = image.filter(ImageFilter.BLUR)
+
+    # حفظ الصورة في الذاكرة وإرسالها
+    img_io = io.BytesIO()
+    image.save(img_io, 'JPEG')
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
+
+if name == 'main':
+    app.run(debug=True)
+
+كيفية الاستخدام:
+
+قم بإرسال صورة إلى /edit-image باستخدام طلب POST.
+
+ستُعاد الصورة معدلة بالحجم الجديد مع تأثير التمويه.
+
+
+
+---
+
+2. دمج عدة تعديلات على صورة واحدة (تغيير الحجم، تأثيرات، وتدوير)
+
+مثال على تطبيق يجري تعديلات متعددة:
+
+@app.route('/multi-edit', methods=['POST'])
+def multi_edit():
+    if 'image' not in request.files:
+        return "يرجى رفع صورة", 400
+
+    image_file = request.files['image']
+    image = Image.open(image_file)
+
+    # تغيير الحجم
+    image = image.resize((400, 400))
+
+    # تدوير الصورة
+    image = image.rotate(45)
+
+    # تحويل الصورة إلى تدرجات الرمادي
+    image = image.convert("L")
+
+    img_io = io.BytesIO()
+    image.save(img_io, 'JPEG')
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
+
+النتيجة: سيتم تغيير حجم الصورة إلى 400×400، تدويرها بزاوية 45 درجة، وتحويلها إلى الأبيض والأسود.
+
+
+---
+
+3. دمج صورتين معًا باستخدام Flask و Pillow
+
+مثال: دمج صورتين فوق بعضهما
+
+@app.route('/merge-images', methods=['POST'])
+def merge_images():
+    if 'image1' not in request.files or 'image2' not in request.files:
+        return "يرجى رفع صورتين", 400
+
+    image1 = Image.open(request.files['image1']).convert("RGBA")
+    image2 = Image.open(request.files['image2']).convert("RGBA")
+
+    # ضبط حجم الصورة الثانية لتناسب الأولى
+    image2 = image2.resize(image1.size)
+
+    # دمج الصورتين مع شفافية 50% للصورة الثانية
+    merged_image = Image.blend(image1, image2, alpha=0.5)
+
+    img_io = io.BytesIO()
+    merged_image.save(img_io, 'PNG')
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/png')
+
+النتيجة: يتم دمج صورتين بحيث تكون الصورة الثانية شفافة بنسبة 50% فوق الصورة الأولى.
+
+
+---
+
+الخلاصة
+
+تحرير الصور في Flask باستخدام Pillow يتيح إمكانيات متعددة مثل تغيير الحجم، إضافة الفلاتر، التدوير، والتحويل إلى الأبيض والأسود.
+
+يمكن دمج عدة تعديلات على صورة واحدة بسهولة.
+
+دمج صورتين معًا يتم باستخدام Pillow عبر دالة Image.blend.

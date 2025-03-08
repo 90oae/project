@@ -1,0 +1,69 @@
+يمكنك استخدام مكتبة PIL (Pillow) لتعديل حجم الصورة داخل تطبيق Flask من خلال الخطوات التالية:
+
+1. تثبيت المكتبات المطلوبة:
+
+إذا لم تكن مكتبة Pillow مثبتة لديك، يمكنك تثبيتها باستخدام:
+
+pip install pillow flask
+
+2. إنشاء تطبيق Flask لمعالجة الصور:
+
+في هذا المثال، سيتم تحميل صورة من المستخدم، تغيير حجمها، ثم إرجاعها للمستخدم.
+
+from flask import Flask, request, send_file
+from PIL import Image
+import io
+
+app = Flask(name)
+
+@app.route('/resize', methods=['POST'])
+def resize_image():
+    # التأكد من وجود ملف في الطلب
+    if 'image' not in request.files:
+        return "الرجاء رفع صورة", 400
+    
+    image_file = request.files['image']
+    
+    try:
+        # فتح الصورة باستخدام Pillow
+        image = Image.open(image_file)
+        
+        # تحديد الأبعاد الجديدة (مثلاً 200x200 بكسل)
+        new_size = (200, 200)
+        image = image.resize(new_size)
+
+        # حفظ الصورة في ذاكرة مؤقتة لإرجاعها بدون حفظها على الخادم
+        img_io = io.BytesIO()
+        image.save(img_io, format='JPEG')
+        img_io.seek(0)
+
+        return send_file(img_io, mimetype='image/jpeg')
+
+    except Exception as e:
+        return f"حدث خطأ: {str(e)}", 500
+
+if name == 'main':
+    app.run(debug=True)
+
+3. كيفية اختبار API:
+
+يمكنك استخدام Postman أو cURL لإرسال صورة إلى هذا الـ API:
+
+curl -X POST -F "image=@path/to/image.jpg" http://127.0.0.1:5000/resize --output resized.jpg
+
+كيف يعمل الكود؟
+
+1. يفتح Flask مسار /resize لاستقبال الطلبات عبر POST.
+
+
+2. يستلم صورة من المستخدم ويتأكد من وجودها.
+
+
+3. يستخدم Pillow لفتح الصورة وتغيير حجمها إلى 200×200 بكسل.
+
+
+4. يتم حفظ الصورة في ذاكرة مؤقتة ثم يتم إرجاعها كردّ للمستخدم.
+
+
+
+يمكنك تعديل الأبعاد أو إضافة خيارات إضافية مثل الحفاظ على نسبة العرض إلى الارتفاع حسب احتياجاتك!

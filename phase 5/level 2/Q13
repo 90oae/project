@@ -1,0 +1,145 @@
+لنشر تطبيق Flask على الإنترنت باستخدام منصات مثل Heroku أو DigitalOcean، يمكن اتباع الخطوات التالية لكل منصة:
+
+1. نشر تطبيق Flask على Heroku:
+
+Heroku هو منصة خدمة (PaaS) تتيح لك نشر تطبيقات الويب بسهولة. إليك خطوات نشر تطبيق Flask على Heroku:
+
+الخطوة 1: تجهيز تطبيق Flask
+
+تأكد من أن تطبيق Flask جاهز. ينبغي أن يحتوي على الملفات الأساسية مثل:
+
+app.py (أو ملف التطبيق الرئيسي).
+
+requirements.txt (يحتوي على قائمة بالمتطلبات مثل Flask).
+
+Procfile (لتحديد كيفية تشغيل التطبيق على Heroku).
+
+
+مثال لـ Procfile:
+
+web: python app.py
+
+مثال لـ requirements.txt:
+
+Flask==2.0.1
+gunicorn==20.1.0
+
+الخطوة 2: تثبيت Heroku CLI
+
+لتنفيذ العمليات عبر Heroku، يجب تثبيت Heroku CLI على جهازك. يمكن تنزيله من هنا: https://devcenter.heroku.com/articles/heroku-cli
+
+الخطوة 3: تسجيل الدخول إلى Heroku
+
+بعد تثبيت Heroku CLI، افتح سطر الأوامر أو الطرفية واكتب الأمر التالي لتسجيل الدخول:
+
+heroku login
+
+الخطوة 4: إنشاء تطبيق على Heroku
+
+قم بإنشاء تطبيق جديد باستخدام الأمر:
+
+heroku create your-app-name
+
+الخطوة 5: نشر التطبيق باستخدام Git
+
+إذا لم يكن لديك مستودع Git لتطبيقك، أنشئ واحدًا:
+
+git init
+git add .
+git commit -m "Initial commit"
+
+ثم قم بإضافة مستودع Heroku:
+
+git remote add heroku https://git.heroku.com/your-app-name.git
+
+أخيرًا، ادفع التطبيق إلى Heroku:
+
+git push heroku master
+
+الخطوة 6: فتح التطبيق
+
+بعد الدفع، يمكنك فتح التطبيق في المتصفح باستخدام:
+
+heroku open
+
+2. نشر تطبيق Flask على DigitalOcean:
+
+DigitalOcean هو مزود خدمات استضافة يعتمد على الخوادم الافتراضية. لنشر تطبيق Flask على DigitalOcean، ستحتاج إلى إعداد Droplet (خادم افتراضي) وتشغيل التطبيق.
+
+الخطوة 1: إعداد خادم DigitalOcean (Droplet)
+
+1. قم بإنشاء حساب على DigitalOcean.
+
+
+2. أنشئ Droplet جديد (خادم افتراضي) باستخدام Ubuntu كـ نظام تشغيل.
+
+
+3. بعد إعداد الـ Droplet، ستتلقى عنوان الـ IP الخاص به.
+
+
+
+الخطوة 2: الاتصال بـ Droplet عبر SSH
+
+افتح الطرفية واستخدم الأمر التالي للاتصال بالخادم:
+
+ssh root@your_droplet_ip
+
+الخطوة 3: تثبيت المتطلبات على الخادم
+
+تأكد من أنك قد قمت بتثبيت Python، pip، و Gunicorn على الخادم. يمكنك تثبيت هذه الأدوات باستخدام الأوامر التالية:
+
+sudo apt update
+sudo apt install python3 python3-pip python3-venv
+pip3 install flask gunicorn
+
+الخطوة 4: نقل تطبيق Flask إلى الخادم
+
+استخدم scp أو git لنقل تطبيق Flask إلى الخادم. إذا كان لديك تطبيق Flask في مستودع Git:
+
+git clone your_repo_url
+
+الخطوة 5: إعداد Gunicorn
+
+قم بتشغيل التطبيق باستخدام Gunicorn (خادم WSGI لتشغيل التطبيقات):
+
+gunicorn --bind 0.0.0.0:8000 app:app
+
+الخطوة 6: إعداد Nginx
+
+استخدم Nginx كعكس عكسي لتحويل طلبات HTTP إلى Gunicorn. قم بتثبيت Nginx:
+
+sudo apt install nginx
+
+ثم قم بإعداد تكوين جديد في Nginx لربط التطبيق:
+
+sudo nano /etc/nginx/sites-available/your-app
+
+ثم أضف التكوين التالي:
+
+server {
+    listen 80;
+    server_name your_droplet_ip;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+قم بإنشاء رابط رمزي في sites-enabled:
+
+sudo ln -s /etc/nginx/sites-available/your-app /etc/nginx/sites-enabled
+
+الخطوة 7: إعادة تشغيل Nginx
+
+sudo systemctl restart nginx
+
+الآن، سيكون تطبيقك Flask متاحًا عبر عنوان الـ IP الخاص بـ DigitalOcean.
+
+الخلاصة:
+
+Heroku يسهل عملية النشر بفضل واجهته البسيطة.
+
+DigitalOcean يقدم مرونة أكبر مع مزيد من التحكم، ولكن يتطلب إعدادًا يدويًا للخادم (Droplet).

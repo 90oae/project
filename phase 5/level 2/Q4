@@ -1,0 +1,25 @@
+btn_sepia = Button(root, text="سيبيا", command=lambda: apply_filter("sepia"))
+btn_sepia.pack()
+
+btn_invert = Button(root, text="عكس الألوان", command=lambda: apply_filter("invert"))
+btn_invert.pack()
+
+root.mainloop()
+
+
+---
+
+3. باستخدام React.js
+
+إذا كنت تفضل استخدام React.js، يمكنك استخدام مكتبة fabric.js أو Canvas API داخل مكون React لتحديث الصورة عند اختيار الفلتر.
+
+
+---
+
+ما الخيار الأفضل؟
+
+إذا كنت تريد واجهة ويب، فاستخدام HTML, CSS, وJavaScript هو الخيار الأفضل.
+
+إذا كنت بحاجة إلى تطبيق سطح مكتب، فاستخدام Python مع Tkinter أو PyQt يمكن أن يكون حلاً مناسبًا.
+
+إذا كنت ترغب في إنشاء تطبيق متقدم، فاستخدام React أو Vue.js سيكون أكثر مرونة.

@@ -1,0 +1,109 @@
+التعامل مع أنواع متعددة من ملفات الصور في Flask
+
+عند تطوير تطبيق Flask يدعم تحميل ومعالجة أنواع مختلفة من الصور (مثل PNG، JPEG، GIF)، يمكن استخدام مكتبة Pillow لمعالجة الصور وتعديلها. إليك بعض النقاط الأساسية للتعامل مع أنواع متعددة من الصور:
+
+1. استخدام Flask لاستقبال الملفات
+يمكن استخدام Flask مع werkzeug لمعالجة الملفات المرفوعة.
+
+
+2. التعرف على نوع الصورة
+يمكن استخدام Pillow لفتح الصورة والتحقق من نوعها.
+
+
+3. إجراء تعديلات بناءً على النوع
+يمكن تنفيذ عمليات مختلفة بناءً على نوع الصورة، مثل التحويل بين التنسيقات.
+
+
+4. حفظ الصورة بتنسيق مختلف
+يمكن حفظ الصورة بتنسيق مختلف باستخدام Pillow.
+
+
+
+
+---
+
+مثال على حفظ صورة بتنسيق مختلف باستخدام Flask وPillow
+
+1. تثبيت المتطلبات
+
+أولاً، تأكد من تثبيت Flask وPillow:
+
+pip install flask pillow
+
+2. إنشاء تطبيق Flask للتعامل مع الصور
+
+from flask import Flask, request, jsonify
+from PIL import Image
+import os
+
+app = Flask(name)
+UPLOAD_FOLDER = "uploads"
+PROCESSED_FOLDER = "processed"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
+
+    file = request.files['image']
+    filename = file.filename
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(filepath)
+
+    # فتح الصورة باستخدام Pillow
+    try:
+        img = Image.open(filepath)
+    except Exception as e:
+        return jsonify({"error": "Invalid image file", "details": str(e)}), 400
+
+    # تحويل الصورة إلى JPEG إذا لم تكن كذلك
+    new_filename = os.path.splitext(filename)[0] + ".jpg"
+    new_filepath = os.path.join(PROCESSED_FOLDER, new_filename)
+
+    img = img.convert("RGB")  # تحويل الصورة إلى RGB قبل الحفظ كـ JPEG
+    img.save(new_filepath, "JPEG")
+
+    return jsonify({"message": "Image converted to JPEG", "saved_as": new_filename}), 200
+
+if name == 'main':
+    app.run(debug=True)
+
+
+---
+
+كيف يعمل هذا التطبيق؟
+
+1. يستقبل التطبيق ملف صورة عبر POST /upload.
+
+
+2. يتحقق مما إذا كان الملف صورة صالحة باستخدام Pillow.
+
+
+3. يحفظ الصورة الأصلية في مجلد uploads/.
+
+
+4. إذا لم تكن الصورة بتنسيق JPEG، فإنه يقوم بتحويلها إلى JPEG باستخدام convert("RGB").
+
+
+5. يتم حفظ الصورة المعدلة في مجلد processed/ بنفس الاسم ولكن بامتداد .jpg.
+
+
+6. يتم إرجاع رسالة JSON تحتوي على اسم الملف الجديد.
+
+
+
+
+---
+
+تحسينات ممكنة
+
+دعم المزيد من التنسيقات، مثل WebP أو BMP.
+
+السماح للمستخدم بتحديد التنسيق المطلوب للتحويل.
+
+ضغط الصور لتقليل حجم الملف قبل الحفظ.
+
+
+هذا التطبيق يمكن تطويره ليكون جزءًا من نظام معالجة صور متكامل داخل أي تطبيق ويب يعتمد على Flask.

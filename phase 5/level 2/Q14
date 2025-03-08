@@ -1,0 +1,88 @@
+إضافة التوثيق (Documentation) لواجهة برمجية للتعديل على الصور باستخدام Flask يمكن أن يتم باستخدام عدة طرق. إليك خطوات توضح كيفية إضافة التوثيق باستخدام Swagger أو Flask-RESTPlus، والذي هو إطار عمل شهير لإنشاء واجهات API موثقة في Flask.
+
+1. إعداد بيئة العمل
+
+أولاً، تأكد من أنك قمت بتثبيت Flask و Flask-RESTPlus أو Flask-Swagger-UI.
+
+pip install Flask Flask-RESTPlus
+
+2. إنشاء تطبيق Flask مع Swagger UI
+
+يمكنك إنشاء واجهة برمجية باستخدام Flask و Flask-RESTPlus ثم إضافة التوثيق باستخدام Swagger.
+
+مثال تطبيق Flask بسيط:
+
+from flask import Flask, request, jsonify
+from flask_restplus import Api, Resource, fields
+
+# إنشاء تطبيق Flask و API باستخدام Flask-RESTPlus
+app = Flask(name)
+api = Api(app, version='1.0', title='Image Processing API', description='A simple image processing API')
+
+# تعريف الـ Namespace الخاص بالصور
+ns = api.namespace('images', description='Image processing operations')
+
+# تعريف نموذج البيانات (Model) باستخدام Flask-RESTPlus
+image_model = api.model('Image', {
+    'image': fields.String(required=True, description='The base64 encoded image data'),
+    'operation': fields.String(required=True, description='The operation to perform on the image (e.g., resize, rotate)')
+})
+
+# إضافة مورد (Resource) لتحميل صورة وتعديلها
+@ns.route('/process')
+class ImageProcess(Resource):
+    @api.doc('Process an image')
+    @api.expect(image_model)
+    def post(self):
+        """تعديل الصورة بناءً على البيانات المدخلة"""
+        data = request.get_json()
+        image_data = data['image']
+        operation = data['operation']
+
+        # هنا يمكنك إضافة الكود الذي يقوم بالتعديل على الصورة
+        # على سبيل المثال، إذا كانت العملية هي "resize" أو "rotate"
+
+        # النتيجة بعد المعالجة
+        response = {
+            'status': 'success',
+            'message': f'Image processed with {operation} operation'
+        }
+        return jsonify(response)
+
+# تشغيل الخادم
+if name == 'main':
+    app.run(debug=True)
+
+3. شرح الكود:
+
+Swagger API: يتم استخدام flask_restplus.Api لإنشاء واجهة API موثقة. يقوم Swagger تلقائيًا بتوثيق جميع الموارد (resources) والعمليات (methods) المتاحة.
+
+Swagger UI: عند تشغيل التطبيق، يمكنك زيارة http://127.0.0.1:5000/ لرؤية التوثيق التفاعلي عبر Swagger UI.
+
+التوثيق داخل الكود: باستخدام @api.doc و @api.expect يمكنك توثيق الواجهات والمعلمات المطلوبة.
+
+
+4. الوصول إلى التوثيق:
+
+عند تشغيل التطبيق، يمكنك الوصول إلى التوثيق التفاعلي عبر الرابط التالي في المتصفح:
+
+http://127.0.0.1:5000/
+
+في هذا التوثيق، سيتم عرض جميع العمليات المتاحة مع تفاصيل المعلمات والنماذج المتوقعة لكل عملية.
+
+5. استخدام مكتبات أخرى للتوثيق
+
+إذا كنت ترغب في إضافة توثيق أكثر تفصيلًا، يمكنك استخدام مكتبات أخرى مثل Flask-Swagger-UI أو Flask-OpenAPI، والتي تقدم خصائص إضافية لتوثيق API.
+
+6. تحسين التوثيق:
+
+يمكنك تحسين التوثيق بإضافة المزيد من التفاصيل حول الأخطاء المحتملة، وأنواع الصور المدعومة، وحجم الصورة المتوقع، وعمليات التعديل المدعومة مثل:
+
+تحويل إلى تدرج رمادي
+
+تغيير الحجم
+
+التدوير
+
+
+يمكنك أيضًا إضافة أمثلة على البيانات المدخلة والمتوقعة لمساعدة المطورين في فهم واجهتك البرمجية بشكل أفضل.

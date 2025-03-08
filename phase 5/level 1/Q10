@@ -1,0 +1,105 @@
+لإضافة وحدة اختبار لاختبار دوال معالجة الصور في تطبيق Flask، يمكن استخدام pytest و unittest. يتم عادةً إنشاء ملف اختبار منفصل يحتوي على اختبارات تلقائية للتحقق من أن وظائف معالجة الصور تعمل كما هو متوقع.
+
+الخطوات الأساسية:
+
+1. إعداد بيئة الاختبار:
+
+تأكد من تثبيت pytest و Flask-Testing إذا كنت بحاجة إلى أدوات إضافية:
+
+pip install pytest Flask-Testing
+
+يمكنك تنظيم الاختبارات في مجلد tests/ داخل المشروع.
+
+
+
+2. إنشاء ملف اختبار (test_app.py):
+
+لنفترض أن لديك دالة في app.py تقوم بتحميل صورة ومعالجتها.
+
+
+
+
+مثال على دوال Flask لمعالجة الصور (app.py):
+
+from flask import Flask, request, jsonify
+from PIL import Image
+import io
+
+app = Flask(name)
+
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    try:
+        img = Image.open(file.stream)
+        img = img.convert("RGB")  # مثال على معالجة الصورة
+        return jsonify({"message": "Image processed successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if name == 'main':
+    app.run(debug=True)
+
+كتابة الاختبارات التلقائية (test_app.py):
+
+import io
+import pytest
+from PIL import Image
+from app import app
+
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
+
+def test_upload_valid_image(client):
+    """ اختبار رفع صورة صالحة """
+    img = Image.new('RGB', (100, 100), color=(255, 0, 0))
+    img_bytes = io.BytesIO()
+    img.save(img_bytes, format='PNG')
+    img_bytes.seek(0)
+
+    response = client.post('/upload', data={'file': (img_bytes, 'test.png')}, content_type='multipart/form-data')
+    
+    assert response.status_code == 200
+    assert response.json['message'] == "Image processed successfully"
+
+def test_upload_without_file(client):
+    """ اختبار رفع طلب بدون ملف """
+    response = client.post('/upload', data={})
+    assert response.status_code == 400
+    assert response.json['error'] == "No file part"
+
+def test_upload_invalid_file(client):
+    """ اختبار رفع ملف غير صالح """
+    response = client.post('/upload', data={'file': ('invalid_data', 'test.txt')}, content_type='multipart/form-data')
+    
+    assert response.status_code == 500
+    assert "cannot identify image file" in response.json['error']
+
+تشغيل الاختبارات
+
+بعد إعداد الاختبارات، يمكنك تشغيلها باستخدام الأمر التالي:
+
+pytest test_app.py -v
+
+ما الذي يتحقق منه هذا الاختبار؟
+
+1. اختبار رفع صورة صالحة والتأكد من أن الاستجابة تحتوي على رسالة النجاح.
+
+
+2. اختبار إرسال طلب بدون ملف والتأكد من أن التطبيق يُرجع خطأ 400.
+
+
+3. اختبار رفع ملف غير صالح لمعرفة ما إذا كان التطبيق يتعامل مع الأخطاء بشكل صحيح.
+
+
+
+بهذه الطريقة، يمكنك التأكد من أن تطبيق Flask الخاص بك يعمل كما هو متوقع بعد أي تعديل على دوال معالجة الصور.

@@ -1,0 +1,98 @@
+لإضافة ميزة لتحويل صورة من تنسيق إلى آخر (مثل من PNG إلى JPG) باستخدام Flask، يمكننا استخدام مكتبة Python مثل Pillow (PIL) التي تسمح بمعالجة الصور بسهولة. هنا هو المثال الذي يوضح كيفية القيام بذلك:
+
+الخطوات:
+
+1. تثبيت المكتبات المطلوبة: تأكد من أنك قد قمت بتثبيت Flask وPillow باستخدام pip:
+
+pip install Flask Pillow
+
+
+2. كتابة الكود في Flask: في هذا المثال، سنقوم بإنشاء تطبيق Flask يسمح للمستخدم بتحميل صورة بصيغة PNG، ثم تحويلها إلى صيغة JPG.
+
+
+
+مثال على الكود:
+
+from flask import Flask, request, send_file
+from PIL import Image
+import os
+from io import BytesIO
+
+app = Flask(name)
+
+@app.route('/')
+def home():
+    return '''
+        <h1>Upload a PNG Image to Convert to JPG</h1>
+        <form method="POST" enctype="multipart/form-data" action="/convert">
+            <input type="file" name="image">
+            <input type="submit" value="Convert">
+        </form>
+    '''
+
+@app.route('/convert', methods=['POST'])
+def convert():
+    # التحقق من وجود الصورة
+    if 'image' not in request.files:
+        return 'No file part'
+    file = request.files['image']
+    
+    if file.filename == '':
+        return 'No selected file'
+    
+    # التأكد أن الملف هو صورة بصيغة PNG
+    if file and file.filename.endswith('.png'):
+        # فتح الصورة باستخدام Pillow
+        img = Image.open(file)
+        
+        # تحويل الصورة إلى JPG
+        img = img.convert('RGB')
+        
+        # حفظ الصورة في ذاكرة مؤقتة باستخدام BytesIO
+        img_io = BytesIO()
+        img.save(img_io, 'JPEG')
+        img_io.seek(0)
+        
+        # إرسال الصورة المحولة للمستخدم
+        return send_file(img_io, mimetype='image/jpeg', as_attachment=True, download_name='converted_image.jpg')
+
+    return 'Please upload a PNG image.'
+
+if name == 'main':
+    app.run(debug=True)
+
+شرح الكود:
+
+1. الواجهة الرئيسية (home):
+
+تعرض نموذج HTML بسيط يسمح للمستخدم بتحميل صورة.
+
+
+
+2. الوظيفة /convert:
+
+عند تحميل صورة، يقوم الكود بفحص ما إذا كانت الصورة بصيغة PNG.
+
+باستخدام مكتبة Pillow، يتم تحويل الصورة إلى صيغة JPG عبر img.convert('RGB').
+
+الصورة المحولة تُحفظ في الذاكرة باستخدام BytesIO.
+
+تُرسل الصورة المحولة للمستخدم بصيغة JPG باستخدام send_file.
+
+
+
+
+تشغيل التطبيق:
+
+قم بتشغيل Flask باستخدام:
+
+python app.py
+
+افتح المتصفح واذهب إلى http://127.0.0.1:5000/ حيث يمكنك تحميل صورة PNG لتحويلها إلى JPG.
+
+
+الملاحظات:
+
+هذا المثال يفترض أن الصورة المُحمّلة هي بصيغة PNG. يمكنك تعديل الكود ليدعم أنواع أخرى من الصور إذا كنت بحاجة.
+
+عند تحويل الصور، تأكد من التعامل مع الأحجام الكبيرة للصور بذكاء إذا كانت الصور قد تكون كبيرة الحجم جدًا.

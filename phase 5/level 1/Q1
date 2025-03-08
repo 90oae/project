@@ -1,0 +1,110 @@
+1. مقدمة في Flask:
+
+إعداد تطبيق Flask للتعامل مع ملفات الصور
+
+لإعداد تطبيق Flask يمكنه التعامل مع ملفات الصور، تحتاج إلى:
+
+1. تثبيت Flask إن لم يكن مثبتًا:
+
+pip install flask
+
+
+2. إنشاء ملف app.py وإضافة الكود التالي:
+
+from flask import Flask, request, render_template
+import os
+
+app = Flask(name)
+
+# تحديد المسار الذي سيتم حفظ الصور فيه
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/')
+def upload_form():
+    return render_template('upload.html')
+
+if name == 'main':
+    app.run(debug=True)
+
+
+
+
+---
+
+التعامل مع تحميل الملفات (مثل الصور) باستخدام Flask
+
+لتمكين Flask من استقبال الملفات، يمكنك استخدام request.files كما يلي:
+
+1. تعديل app.py ليشمل معالجة رفع الصور:
+
+from flask import Flask, request, render_template, redirect, url_for
+import os
+
+app = Flask(name)
+
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return "لم يتم اختيار أي ملف!"
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return "لم يتم اختيار أي ملف!"
+
+        if file and allowed_file(file.filename):
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(filepath)
+            return f"تم رفع الصورة بنجاح: {filepath}"
+
+    return render_template('upload.html')
+
+if name == 'main':
+    app.run(debug=True)
+
+
+2. إنشاء قالب HTML (templates/upload.html) يحتوي على نموذج رفع الملفات:
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>رفع الصور</title>
+</head>
+<body>
+    <h1>رفع صورة</h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="رفع">
+    </form>
+</body>
+</html>
+
+
+
+
+---
+
+آلية معالجة البيانات المرسلة عبر POST عند رفع صورة في Flask
+
+عند رفع صورة باستخدام POST في Flask، تحدث العمليات التالية:
+
+1. استقبال الطلب:
+
+عندما يرسل المستخدم صورة عبر النموذج، يتم إرسال طلب POST إلى الخ

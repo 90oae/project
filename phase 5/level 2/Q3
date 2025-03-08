@@ -1,0 +1,59 @@
+لإضافة تأثيرات مثل التباين أو السطوع للصورة باستخدام Flask، يمكنك استخدام مكتبة Pillow (PIL) لمعالجة الصور. إليك كيفية القيام بذلك:
+
+1. تثبيت المتطلبات:
+
+pip install Flask Pillow
+
+2. إنشاء تطبيق Flask:
+
+from flask import Flask, request, send_file
+from PIL import Image, ImageEnhance
+import io
+
+app = Flask(name)
+
+@app.route('/edit_image', methods=['POST'])
+def edit_image():
+    # استلام الصورة من المستخدم
+    file = request.files['image']
+    image = Image.open(file)
+
+    # الحصول على القيم من المستخدم (اختياري: يمكن ضبط القيم من خلال بارامترات)
+    brightness_factor = float(request.form.get('brightness', 1.0))  # افتراضي 1.0 (بدون تغيير)
+    contrast_factor = float(request.form.get('contrast', 1.0))      # افتراضي 1.0 (بدون تغيير)
+
+    # تعديل السطوع
+    enhancer = ImageEnhance.Brightness(image)
+    image = enhancer.enhance(brightness_factor)
+
+    # تعديل التباين
+    enhancer = ImageEnhance.Contrast(image)
+    image = enhancer.enhance(contrast_factor)
+
+    # حفظ الصورة في ذاكرة مؤقتة وإرسالها للمستخدم
+    img_io = io.BytesIO()
+    image.save(img_io, format='JPEG')
+    img_io.seek(0)
+
+    return send_file(img_io, mimetype='image/jpeg')
+
+if name == 'main':
+    app.run(debug=True)
+
+3. كيفية استخدام الـ API:
+
+إرسال طلب POST إلى http://127.0.0.1:5000/edit_image مع:
+
+ملف صورة في image
+
+قيمة السطوع في brightness (مثلاً 1.5 لزيادة السطوع)
+
+قيمة التباين في contrast (مثلاً 1.2 لزيادة التباين)
+
+
+
+4. مثال باستخدام cURL:
+
+curl -X POST -F "image=@path_to_image.jpg" -F "brightness=1.5" -F "contrast=1.2" http://127.0.0.1:5000/edit_image --output edited_image.jpg
+
+بهذه الطريقة، يمكنك تطبيق تأثيرات مثل السطوع والتباين بسهولة باستخدام Flask وPillow.

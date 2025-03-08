@@ -1,0 +1,130 @@
+1. التحقق من أن الملف المرفوع هو صورة باستخدام Flask
+
+يمكن التحقق من أن الملف المرفوع هو صورة عن طريق فحص امتداده و نوعه (MIME type) باستخدام مكتبة werkzeug و PIL (Pillow). إليك الطريقة:
+
+استخدام werkzeug.utils.secure_filename و imghdr
+
+from flask import Flask, request
+from werkzeug.utils import secure_filename
+import imghdr
+import os
+
+app = Flask(name)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part", 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return "No selected file", 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join("uploads", filename)
+        file.save(file_path)
+
+        # التحقق من أن الملف هو صورة باستخدام imghdr
+        if imghdr.what(file_path) in ALLOWED_EXTENSIONS:
+            return "File uploaded successfully", 200
+        else:
+            os.remove(file_path)  # حذف الملف غير الصالح
+            return "Invalid image format", 400
+    
+    return "File type not allowed", 400
+
+if name == 'main':
+    app.run(debug=True)
+
+شرح الكود:
+
+يتم التأكد من وجود ملف في الطلب.
+
+التحقق من الامتداد المسموح به (ALLOWED_EXTENSIONS).
+
+يتم حفظ الملف مؤقتًا ثم فحصه باستخدام imghdr.what() للتأكد من أنه صورة حقيقية.
+
+إذا لم يكن الملف صورة، يتم حذفه.
+
+
+
+---
+
+2. التحقق من أبعاد الصورة قبل قبولها
+
+يمكن التحقق من أبعاد الصورة باستخدام مكتبة PIL (Pillow) لمنع تحميل الصور الصغيرة جدًا أو الكبيرة جدًا.
+
+كود التحقق من الأبعاد
+
+from PIL import Image
+
+# تعيين الحدود الدنيا والقصوى للأبعاد
+MIN_WIDTH, MIN_HEIGHT = 100, 100
+MAX_WIDTH, MAX_HEIGHT = 2000, 2000
+
+def allowed_image_size(file_path):
+    with Image.open(file_path) as img:
+        width, height = img.size
+        return MIN_WIDTH <= width <= MAX_WIDTH and MIN_HEIGHT <= height <= MAX_HEIGHT
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part", 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return "No selected file", 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join("uploads", filename)
+        file.save(file_path)
+
+        # التحقق من نوع الصورة
+        if imghdr.what(file_path) in ALLOWED_EXTENSIONS:
+            # التحقق من أبعاد الصورة
+            if allowed_image_size(file_path):
+                return "File uploaded successfully", 200
+            else:
+                os.remove(file_path)
+                return "Image dimensions not allowed", 400
+        else:
+            os.remove(file_path)
+            return "Invalid image format", 400
+    
+    return "File type not allowed", 400
+
+شرح الكود الإضافي:
+
+allowed_image_size(file_path): تستخدم Pillow للتحقق من أبعاد الصورة.
+
+يتم رفض الصور التي تكون أصغر من 100×100 بكسل أو أكبر من 2000×2000 بكسل.
+
+إذا لم تحقق الصورة الشروط، يتم حذفها وإرجاع خطأ.
+
+
+
+---
+
+ملخص
+
+1. التحقق من أن الملف هو صورة باستخدام imghdr أو Pillow بعد حفظه مؤقتًا.
+
+
+2. التحقق من أبعاد الصورة باستخدام Pillow لمنع الصور غير المناسبة.
+
+
+3. إرجاع رسائل خطأ مناسبة وإزالة الملفات غير الصالحة.
+
+
+
+بهذه الطريقة، يمكن التأكد من أن الصور التي يتم رفعها تتوافق مع المعايير المطلوبة قبل معالجتها.
